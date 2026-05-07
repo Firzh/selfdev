@@ -1,0 +1,103 @@
+agents:
+  siwa:
+    role: orchestrator
+    model: siwa:latest
+    allowed_tools:
+      - kanban_create_task
+      - kanban_update_status
+      - kanban_attach_artifact
+      - message_send
+      - message_read_reply
+      - agent_registry_lookup
+      - tool_registry_lookup
+      - workflow_state_read
+      - workflow_state_write
+      - human_escalation_request
+    denied_tools: &baseline_denied
+      - run_shell
+      - arbitrary_shell
+      - apply_patch
+      - git_commit
+      - git_push
+      - git_merge
+      - git_rebase
+      - git_reset_hard
+      - deploy
+      - release
+      - restart_service
+      - read_secret
+      - modify_env
+      - delete_file
+
+  opung:
+    role: scoped_coding_implementer
+    model: opung:latest
+    allowed_tools:
+      - read_file
+      - list_files
+      - git_diff
+      - write_implementation_plan
+      - write_draft_patch
+      - write_validation_request
+    denied_tools: *baseline_denied
+
+  adit:
+    role: documentation_agent
+    model: adit:latest
+    allowed_tools:
+      - read_file
+      - list_files
+      - git_diff
+      - write_doc_plan
+      - write_docs_patch
+      - write_doc_gap_report
+      - write_validation_request
+    denied_tools: *baseline_denied
+
+  asep:
+    role: defensive_security_reviewer
+    model: asep:latest
+    allowed_tools:
+      - read_file
+      - list_files
+      - git_diff
+      - write_security_review
+      - request_dependency_audit
+      - request_runner_validation
+    denied_tools: *baseline_denied
+
+  doni:
+    role: devops_reviewer
+    model: doni:latest
+    allowed_tools:
+      - read_file
+      - list_files
+      - git_diff
+      - write_devops_review
+      - write_validation_request
+      - request_runner_validation
+    denied_tools: *baseline_denied
+
+  supri:
+    role: read_only_sysadmin_analyst
+    model: supri:latest
+    allowed_tools:
+      - read_file
+      - list_files
+      - read_artifact
+      - write_runtime_review
+      - request_read_only_check
+    denied_tools: *baseline_denied
+
+  senior_reviewer:
+    role: final_reviewer
+    model: senior_reviewer:latest
+    allowed_tools:
+      - read_file
+      - list_files
+      - git_diff
+      - read_artifact
+      - write_senior_review
+      - request_specialist_review
+      - write_validation_request
+    denied_tools: *baseline_denied

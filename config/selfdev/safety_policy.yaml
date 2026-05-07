@@ -1,0 +1,27 @@
+safety_policy:
+  denied_paths:
+    - .env
+    - .env.*
+    - .git/
+    - data/secrets/
+
+  denied_actions:
+    - run_shell
+    - arbitrary_shell
+    - git_push
+    - git_merge
+    - git_rebase
+    - git_reset_hard
+    - modify_env
+    - read_secret
+    - delete_file
+    - deploy
+    - release
+
+  human_required:
+    - dependency_change
+    - tool_registry_change
+    - agent_permission_change
+    - security_policy_change
+    - architecture_change
+    - commit_policy_change

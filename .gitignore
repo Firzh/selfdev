@@ -1,1 +1,8 @@
-.venv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.env.*
+data/agent_workspace/*
+!data/agent_workspace/.gitkeep

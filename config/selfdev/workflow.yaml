@@ -1,0 +1,20 @@
+workflow:
+  name: selfdev_local_multi_agent
+  mode: sequential_first
+  stages:
+    - load_manifest
+    - validate_manifest
+    - classify_risk
+    - route_agent
+    - dispatch_message
+    - collect_artifact
+    - review_artifact
+    - safety_gate
+    - runner
+    - verification_engine
+    - commit_gate
+
+  limits:
+    max_dispatch_rounds: 3
+    max_revision_rounds: 2
+    max_agent_wait_seconds: 300

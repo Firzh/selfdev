@@ -1,0 +1,17 @@
+targets:
+  selfdev:
+    name: SelfDev
+    type: local_system
+    root_path: .
+    allowed_paths:
+      - docs/
+      - config/
+      - schemas/
+      - selfdev/
+      - scripts/
+      - tests/
+    denied_paths:
+      - .env
+      - .env.*
+      - .git/
+      - data/secrets/

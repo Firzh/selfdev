@@ -1,0 +1,66 @@
+routing_rules:
+  documentation:
+    primary: adit
+    required_review:
+      - senior_reviewer
+
+  implementation:
+    primary: opung
+    required_review:
+      - senior_reviewer
+
+  implementation_with_security_risk:
+    primary: opung
+    required_review:
+      - asep
+      - senior_reviewer
+
+  security_review:
+    primary: asep
+    required_review:
+      - senior_reviewer
+
+  devops_review:
+    primary: doni
+    required_review:
+      - senior_reviewer
+
+  runtime_issue:
+    primary: supri
+    required_review:
+      - doni
+      - senior_reviewer
+
+  dependency_change:
+    primary: doni
+    required_review:
+      - asep
+      - senior_reviewer
+    requires_human_review: true
+
+  tool_registry_change:
+    primary: asep
+    required_review:
+      - doni
+      - senior_reviewer
+    requires_human_review: true
+
+  agent_permission_change:
+    primary: asep
+    required_review:
+      - senior_reviewer
+    requires_human_review: true
+
+  high_risk:
+    primary: siwa
+    required_review:
+      - asep
+      - doni
+      - senior_reviewer
+    requires_human_review: true
+
+  critical:
+    primary: human_owner
+    required_review: []
+    requires_human_review: true
+    automation_allowed: false
