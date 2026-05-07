@@ -1,267 +1,263 @@
 # Short-Term Development Plan
 
-**Project:** SelfDev  
-**Scope:** short-term implementation plan  
-**Status:** active planning  
-**Date:** 2026-05-07
+## Purpose
 
-## 1. Goal
+This plan tracks the short-term implementation path for SelfDev.
 
-The short-term goal is to turn SelfDev from a documentation-first repository into a tested local system skeleton.
+SelfDev is a standalone local multi-agent self-development system. It can manage `ai-rag-local`, but it is not limited to `ai-rag-local`.
 
-The first development cycle must not create autonomous execution. It must create a stable contract layer.
+## Milestone Rule
 
-## 2. Current Baseline
+Every 10 commits or 10 phases, documentation must be updated before adding new feature code.
 
-| Area | Status | Notes |
-|---|---|---|
-| General design document | Done in documentation | Needs root-level navigation from README |
-| Core tools design | Done in documentation | Runner, Verification Engine, Safety Gate, Commit Gate defined |
-| UI design | Done in documentation | Local web app first, wrapper later |
-| Agent dev plans | Done in documentation | Siwa, Opung, Adit, Asep, Doni, Supri, Senior Reviewer available |
-| Knowledge base docs | Done in documentation | Available per agent |
-| Runtime code | Not implemented | Must start with deterministic skeleton |
-| Config files | Not implemented | Must create `config/selfdev/*.yaml` |
-| JSON schemas | Not implemented | Must create `schemas/selfdev/*.schema.json` |
-| Tests | Not implemented | Must add config and relationship tests first |
-| UI | Not implemented | Start read-only after state files exist |
-| Runner | Not implemented | Start dry-run only |
-| Verification Engine | Not implemented | Start schema and path checks only |
-| Safety Gate | Not implemented | Start denied path and unsafe tool check |
-| Commit Gate | Not implemented | Implement last |
-
-## 3. Short-Term Phases
-
-### Phase 0: Documentation Baseline
-
-Deliverables:
+Documentation update includes:
 
 ```text
 README.md
 CHANGELOG.md
-docs/SPECIFICATION.md
-docs/DEV_PLAN_SHORT_TERM.md
 docs/IMPLEMENTATION_STATUS.md
+docs/DEV_PLAN_SHORT_TERM.md
+docs/SPECIFICATION.md
 docs/TEST_PLAN.md
 ```
 
-Exit criteria:
+## Completed Short-Term Goals
+
+### Goal 1: Contract baseline
+
+Status: Done
+
+Outputs:
 
 ```text
-Root README explains SelfDev as standalone system.
-Short-term plan records done and not done items.
-Specification defines required config, schema, tools, and tests.
-```
-
-### Phase 1: Repository Skeleton
-
-Deliverables:
-
-```text
-config/selfdev/
-schemas/selfdev/
-selfdev/agents/
-selfdev/tools/
-selfdev/runtime/
-selfdev/policies/
-selfdev/api/
-scripts/selfdev/
-tests/selfdev/
-data/agent_workspace/
-```
-
-Exit criteria:
-
-```text
-All required directories exist.
-Directory validation test passes.
-```
-
-### Phase 2: Configuration Contract
-
-Deliverables:
-
-```text
-config/selfdev/agents.yaml
-config/selfdev/tools.yaml
-config/selfdev/routing_rules.yaml
-config/selfdev/workflow.yaml
-config/selfdev/targets.yaml
-config/selfdev/safety_policy.yaml
-```
-
-Exit criteria:
-
-```text
-All config files exist.
-All agent IDs are unique.
-All routing targets exist.
-All tool references exist.
-No non-core agent has forbidden execution tools.
-```
-
-### Phase 3: Schema Contract
-
-Deliverables:
-
-```text
-schemas/selfdev/agents.schema.json
-schemas/selfdev/tools.schema.json
-schemas/selfdev/routing_rules.schema.json
-schemas/selfdev/manifest.schema.json
-schemas/selfdev/message.schema.json
-schemas/selfdev/artifact.schema.json
-```
-
-Exit criteria:
-
-```text
-All config files validate against schemas.
-Invalid sample config fails.
-```
-
-### Phase 4: Deterministic State and Workspace
-
-Deliverables:
-
-```text
-data/agent_workspace/kanban/
-data/agent_workspace/agents/
-data/agent_workspace/manifests/
-data/agent_workspace/artifacts/
-data/agent_workspace/reviews/
-data/agent_workspace/safety/
-data/agent_workspace/verification/
-data/agent_workspace/runner/
-data/agent_workspace/audit/
-```
-
-Exit criteria:
-
-```text
-Workspace check passes.
-No tool writes outside `data/agent_workspace` in early phase.
-```
-
-### Phase 5: Minimal Script Layer
-
-Deliverables:
-
-```text
-scripts/selfdev/validate_config.py
-scripts/selfdev/check_tool_grants.py
-scripts/selfdev/check_routing.py
-scripts/selfdev/check_workspace.py
 scripts/selfdev/run_contract_tests.py
+tests/selfdev/
+config/selfdev/
 ```
 
-Exit criteria:
+### Goal 2: Runtime skeleton
+
+Status: Done
+
+Outputs:
 
 ```text
-All scripts run without modifying source files.
-Scripts return non-zero exit code on contract failure.
-```
-
-### Phase 6: Minimal Runtime Stubs
-
-Deliverables:
-
-```text
+selfdev/runtime/state_manager.py
+selfdev/runtime/message_bus.py
+selfdev/runtime/kanban.py
 selfdev/tools/safety_gate.py
 selfdev/tools/verification_engine.py
 selfdev/tools/runner.py
 selfdev/tools/commit_gate.py
-selfdev/runtime/state_manager.py
-selfdev/runtime/message_bus.py
-selfdev/runtime/kanban.py
 ```
 
-Exit criteria:
+### Goal 3: Manifest validation
+
+Status: Done
+
+Outputs:
 
 ```text
-Each module can be imported.
-No runtime module executes shell on import.
-No runtime module reads `.env` directly.
+schemas/selfdev/manifest.schema.json
+selfdev/runtime/manifest_validator.py
+scripts/selfdev/validate_manifest.py
+examples/manifests/task-docs-001.yaml
 ```
 
-### Phase 7: Read-Only UI Preparation
+### Goal 4: Routing Gate
 
-Deliverables:
+Status: Done
+
+Outputs:
 
 ```text
-selfdev/api/routes/health.py
-selfdev/api/routes/agents.py
-selfdev/api/routes/tools.py
-selfdev/api/routes/kanban.py
-selfdev/api/routes/artifacts.py
+selfdev/runtime/routing_gate.py
+scripts/selfdev/route_manifest.py
 ```
 
-Exit criteria:
+### Goal 5: Dispatch Flow
+
+Status: Done
+
+Outputs:
 
 ```text
-API is read-only.
-No action endpoint exists yet.
+selfdev/runtime/dispatcher.py
+scripts/selfdev/dispatch_manifest.py
 ```
 
-## 4. Done and Not Done Tracker
+### Goal 6: Artifact Registry and Artifact Gate
 
-| Goal | Done | Not Done |
-|---|---:|---:|
-| Define SelfDev as standalone system | Yes | No |
-| Define AI RAG Local as first target system | Yes | No |
-| Define all agents | Yes | No |
-| Define core tools | Yes | No |
-| Define UI plan | Yes | No |
-| Root README | Planned now | Needs commit |
-| Config YAML | No | Yes |
-| JSON schemas | No | Yes |
-| Tests | No | Yes |
-| Runtime modules | No | Yes |
-| API | No | Yes |
-| Desktop wrapper | No | Yes |
+Status: Done
 
-## 5. Priority for Next Commit
-
-Recommended first commit title:
+Outputs:
 
 ```text
-docs: add SelfDev project baseline and short-term development plan
+selfdev/runtime/artifact_registry.py
+selfdev/tools/artifact_gate.py
+scripts/selfdev/register_artifact.py
 ```
 
-Recommended second commit title:
+### Goal 7: Artifact Collection Flow
+
+Status: Done
+
+Outputs:
 
 ```text
-chore: add SelfDev repository skeleton and config contract tests
+selfdev/runtime/artifact_collector.py
+scripts/selfdev/collect_artifacts.py
 ```
 
-## 6. Non-Goals for Short-Term Phase
+### Goal 8: Senior Review Gate Skeleton
 
-Do not implement:
+Status: Done
+
+Outputs:
 
 ```text
-LLM agent execution
-patch application
-local commit
+selfdev/runtime/senior_review_gate.py
+scripts/selfdev/write_senior_review.py
+```
+
+## Next Short-Term Goals
+
+### Goal 9: Safety Gate Integration
+
+Status: Next
+
+Required outputs:
+
+```text
+selfdev/runtime/safety_flow.py
+scripts/selfdev/write_safety_decision.py
+tests/selfdev/test_safety_flow.py
+```
+
+Expected behavior:
+
+```text
+changed paths and requested actions are checked
+safety report artifact is written
+safety artifact is registered
+Kanban and state are updated
+blocked safety result prevents Runner request
+```
+
+### Goal 10: Verification Report Flow
+
+Status: Pending
+
+Required outputs:
+
+```text
+selfdev/runtime/verification_flow.py
+scripts/selfdev/write_verification_report.py
+tests/selfdev/test_verification_flow.py
+```
+
+Expected behavior:
+
+```text
+verification checks produce report artifact
+PASS moves task toward commit readiness
+FAIL moves task to needs_revision or verification_failed
+```
+
+### Goal 11: Runner Request Flow
+
+Status: Pending
+
+Required outputs:
+
+```text
+selfdev/runtime/runner_flow.py
+scripts/selfdev/request_runner_action.py
+tests/selfdev/test_runner_flow.py
+```
+
+Expected behavior:
+
+```text
+Runner request is accepted only after Senior Review and Safety Gate pass
+dangerous Runner actions are blocked
+Runner report artifact is written
+```
+
+### Goal 12: Commit Readiness Flow
+
+Status: Pending
+
+Required outputs:
+
+```text
+selfdev/runtime/commit_readiness_flow.py
+scripts/selfdev/evaluate_commit_readiness.py
+tests/selfdev/test_commit_readiness_flow.py
+```
+
+Expected behavior:
+
+```text
+Commit Gate checks required PASS artifacts
+Commit Gate does not run git commit yet
+Commit readiness artifact is written
+```
+
+### Goal 13: Full Dry Run
+
+Status: Pending
+
+Expected flow:
+
+```text
+manifest validate
+route
+dispatch
+collect artifact
+senior review
+safety decision
+verification
+commit readiness
+```
+
+### Goal 14: Minimal API Read-Only Layer
+
+Status: Pending
+
+Expected outputs:
+
+```text
+selfdev/api/
+GET /health
+GET /kanban
+GET /agents
+GET /tools
+GET /artifacts
+GET /state/{task_id}
+```
+
+### Goal 15: UI Read-Only Dashboard
+
+Status: Pending
+
+Expected output:
+
+```text
+selfdev/ui/web/
+```
+
+## Do Not Implement Yet
+
+```text
+LLM calls
+automatic patch application
+automatic shell execution
+automatic commit
 push
 merge
+release
 deployment
-autonomous shell
-full desktop wrapper
-full UI
-remote API access
-```
-
-## 7. Definition of Done
-
-Short-term phase is done when:
-
-```text
-README and docs are available.
-Config files exist.
-Schemas exist.
-Config tests pass.
-Relationship tests pass.
-Workspace tests pass.
-No agent has unsafe tool grants.
-No execution path bypasses Runner, Verification Engine, Safety Gate, or Commit Gate.
+desktop wrapper
+real scanner execution
 ```

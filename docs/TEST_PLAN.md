@@ -1,162 +1,168 @@
-# SelfDev Test Plan
+# Test Plan
 
-**Status:** initial test plan  
-**Date:** 2026-05-07
+## Purpose
 
-## 1. Purpose
+This test plan defines the current SelfDev testing scope.
 
-The first test suite must verify that SelfDev configuration, scripts, and module relationships are coherent before any autonomous workflow is implemented.
+The test suite verifies contract consistency, config integrity, runtime skeleton behavior, manifest validation, routing, dispatch, artifact handling, and senior review flow.
 
-## 2. Test Philosophy
-
-Test contracts before testing intelligence.
-
-The first tests do not need LLM calls. They must verify deterministic structure.
-
-## 3. Test Groups
-
-### 3.1 Repository Structure Tests
-
-Checks:
-
-```text
-required folders exist
-required documentation exists
-required config folder exists
-required schema folder exists
-required script folder exists
-required test folder exists
-```
-
-### 3.2 Config Integrity Tests
-
-Checks:
-
-```text
-agents.yaml exists
-tools.yaml exists
-routing_rules.yaml exists
-workflow.yaml exists
-targets.yaml exists
-safety_policy.yaml exists
-```
-
-### 3.3 Agent Registry Tests
-
-Checks:
-
-```text
-required agents exist
-agent IDs are unique
-each agent has role, model, allowed_tools, denied_tools
-normal agents do not have forbidden tools
-Senior Reviewer cannot commit directly
-Siwa cannot write patch
-Opung cannot apply patch
-Adit cannot modify source code
-Asep cannot run scanner directly
-Doni cannot deploy
-Supri cannot run shell
-```
-
-### 3.4 Tool Registry Tests
-
-Checks:
-
-```text
-every tool has ID, category, risk level
-every tool grant references known tool
-execution tools are marked as gated
-core tools exist
-forbidden tools are denied by default
-```
-
-### 3.5 Routing Tests
-
-Checks:
-
-```text
-every routing primary agent exists
-every required reviewer exists
-high-risk routes require human review
-dependency change routes to Doni and requires Asep and Senior Reviewer
-runtime issue routes to Supri and requires Doni and Senior Reviewer
-```
-
-### 3.6 Workspace Tests
-
-Checks:
-
-```text
-data/agent_workspace folders exist
-agent inbox/outbox folders exist or can be created
-artifact paths are inside workspace
-path traversal is rejected
-```
-
-### 3.7 Script Relationship Tests
-
-Checks:
-
-```text
-scripts exist
-scripts are import-safe
-scripts do not execute shell on import
-scripts have main guard
-scripts return non-zero on failed validation
-```
-
-### 3.8 Core Module Import Tests
-
-Checks:
-
-```text
-selfdev.tools.safety_gate imports
-selfdev.tools.verification_engine imports
-selfdev.tools.runner imports
-selfdev.tools.commit_gate imports
-selfdev.runtime.state_manager imports
-selfdev.runtime.message_bus imports
-selfdev.runtime.kanban imports
-```
-
-## 4. First Test Command
+## Test Command
 
 ```bash
 python scripts/selfdev/run_contract_tests.py
 ```
 
-Equivalent direct command:
+## Current Test Coverage
+
+### Repository Structure
+
+Verifies required directories and documentation files exist.
+
+### Config Integrity
+
+Verifies required config files exist:
+
+```text
+config/selfdev/agents.yaml
+config/selfdev/tools.yaml
+config/selfdev/routing_rules.yaml
+config/selfdev/workflow.yaml
+config/selfdev/targets.yaml
+config/selfdev/safety_policy.yaml
+```
+
+### Agent Tool Grants
+
+Checks:
+
+```text
+all allowed tools exist in tools.yaml
+forbidden tools are not granted
+baseline denied tools are explicitly denied
+```
+
+### Runtime Skeleton
+
+Checks:
+
+```text
+StateManager write and read
+MessageBus send and read
+KanbanBoard create and update
+Safety Gate blocks denied action
+Safety Gate blocks denied path
+Verification Engine detects missing file
+Runner blocks denied action
+Commit Gate blocks missing requirement
+```
+
+### Manifest Validator
+
+Checks:
+
+```text
+valid manifest passes
+missing required field fails
+invalid risk level fails
+denied path in allowed_paths fails
+high-risk task requires human gate
+manifest file validation works
+CLI accepts example manifest
+```
+
+### Routing Gate
+
+Checks:
+
+```text
+routing rules load
+documentation routes to Adit
+implementation routes to Opung
+dependency_change requires human review
+invalid manifest does not route
+CLI routes example manifest
+```
+
+### Dispatch Flow
+
+Checks:
+
+```text
+documentation manifest creates message, state, and Kanban task
+high-risk manifest goes to human_required
+dispatch CLI accepts example manifest
+```
+
+### Artifact Registry and Artifact Gate
+
+Checks:
+
+```text
+artifact can be registered
+valid artifact passes gate
+empty artifact fails
+path escape fails
+missing required artifact type fails
+register artifact CLI works
+```
+
+### Artifact Collection Flow
+
+Checks:
+
+```text
+artifact_ready reply registers artifact
+Kanban is updated
+state is updated
+missing required artifact triggers needs_revision
+invalid reply shape blocks collection
+CLI collects artifact reply
+```
+
+### Senior Review Gate
+
+Checks:
+
+```text
+approve_for_runner updates task to ready_for_verification
+request_revision updates task to needs_revision
+not-ready task is blocked
+senior review CLI works
+```
+
+## Current Expected Result
+
+All tests should pass before continuing.
+
+Operator reported current state:
+
+```text
+Tests green
+Commit completed
+Local commit count: 12
+```
+
+## Required Test Rule
+
+Before each commit:
 
 ```bash
-pytest tests/selfdev -q
+python scripts/selfdev/run_contract_tests.py
 ```
 
-## 5. Minimum Passing Criteria
+Do not commit if tests are red.
 
-The first passing state requires:
+## Next Test Scope
 
-```text
-all required files exist
-all required folders exist
-all required agents exist
-all routing references resolve
-all tool grants resolve
-no unsafe tool is granted to normal agents
-workspace paths are valid
-scripts are present
-```
-
-## 6. Tests to Add Later
+For the next phase, add tests for Safety Gate Integration:
 
 ```text
-manifest schema validation
-message schema validation
-artifact schema validation
-Safety Gate denied path check
-Safety Gate secret pattern check
-Runner denied action check
-Verification Engine report check
-Commit Gate pass/fail check
-UI action availability check
+safety report is written
+safety artifact is registered
+safe changed paths pass
+denied changed paths block
+denied action blocks
+Kanban is updated
+state is updated
+Runner is blocked when Safety Gate blocks
 ```

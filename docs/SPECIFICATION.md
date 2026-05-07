@@ -1,341 +1,277 @@
 # SelfDev Specification
 
-**Status:** initial implementation specification  
-**Date:** 2026-05-07
-
-## 1. System Scope
+## 1. System Identity
 
 SelfDev is a standalone local multi-agent self-development system.
 
-SelfDev can manage one or more target systems. The first target system is `ai-rag-local`, but SelfDev must remain independent from it.
+It coordinates agents, tools, reviews, artifacts, and gates to support safe local development.
 
-## 2. Target System Contract
+SelfDev can manage many target systems. `ai-rag-local` is only the first expected managed target.
 
-Target systems are registered in:
+## 2. Current Implementation Scope
 
-```text
-config/selfdev/targets.yaml
-```
+The current implementation is deterministic and file-based.
 
-Required fields:
+No LLM integration is active.
 
-```yaml
-targets:
-  - target_id: ai-rag-local
-    name: AI RAG Local
-    root_path: ../ai-rag-local
-    type: python_rag_app
-    default_branch: master
-    allowed_paths:
-      - app/
-      - tests/
-      - docs/
-      - scripts/
-    denied_paths:
-      - .env
-      - .env.*
-      - .git/
-      - data/secrets/
-      - credentials/
-```
+No agent execution is active.
 
-## 3. Agent Registry Contract
+No shell execution is active.
 
-Agent registry lives in:
+## 3. Current Core Modules
 
-```text
-config/selfdev/agents.yaml
-```
+| Module | Purpose |
+|---|---|
+| `selfdev.runtime.state_manager` | Read and write task state |
+| `selfdev.runtime.message_bus` | File-based agent inbox and outbox |
+| `selfdev.runtime.kanban` | File-based task board |
+| `selfdev.runtime.manifest_validator` | Validate task manifest |
+| `selfdev.runtime.routing_gate` | Resolve manifest to routing decision |
+| `selfdev.runtime.dispatcher` | Dispatch manifest to Kanban, state, and message bus |
+| `selfdev.runtime.artifact_registry` | Register artifact records |
+| `selfdev.runtime.artifact_collector` | Collect `artifact_ready` replies |
+| `selfdev.runtime.senior_review_gate` | Write senior review decision |
+| `selfdev.tools.safety_gate` | Check denied actions and denied paths |
+| `selfdev.tools.verification_engine` | Run minimal deterministic verification |
+| `selfdev.tools.runner` | Validate Runner requests only |
+| `selfdev.tools.commit_gate` | Evaluate commit readiness only |
+| `selfdev.tools.artifact_gate` | Validate artifact records |
 
-Required agent IDs:
+## 4. Manifest Contract
 
-```text
-siwa
-opung
-adit
-asep
-doni
-supri
-senior_reviewer
-```
-
-Each agent must define:
+A task manifest must include:
 
 ```yaml
-agent_id:
-name:
-role:
-model:
-base_model:
-temperature:
-allowed_tools:
-denied_tools:
-responsibilities:
-denied_responsibilities:
+task_id:
+title:
+risk_level:
+mode:
+task_type:
+target_id:
+objective:
+allowed_paths:
+denied_paths:
+required_outputs:
+required_reviews:
+stop_conditions:
 ```
 
-## 4. Core Tools Contract
+High-risk task types require:
 
-Core tools:
+```yaml
+human_gate_required: true
+```
+
+High-risk task types:
 
 ```text
-runner
-verification_engine
-safety_gate
-commit_gate
+dependency_change
+tool_registry_change
+agent_permission_change
+high_risk
+critical
 ```
 
-Rules:
+## 5. Routing Contract
 
-```text
-Runner executes controlled approved actions.
-Verification Engine validates deterministic checks.
-Safety Gate blocks unsafe actions.
-Commit Gate creates local commit only after all required checks pass.
-No push, merge, or release is allowed.
-```
+Routing is deterministic.
 
-## 5. Tool Registry Contract
-
-Tool registry lives in:
-
-```text
-config/selfdev/tools.yaml
-```
-
-Tool categories:
-
-```text
-read_tools
-write_artifact_tools
-orchestration_tools
-request_tools
-execution_tools
-core_tools
-```
-
-Denied for normal agents:
-
-```text
-run_shell
-apply_patch
-git_commit
-git_push
-git_merge
-git_rebase
-deploy
-restart_service
-read_secret
-modify_env
-delete_file
-```
-
-## 6. Routing Rules Contract
-
-Routing rules live in:
+The source of truth is:
 
 ```text
 config/selfdev/routing_rules.yaml
 ```
 
-Minimum routing:
+Current routing examples:
 
-```yaml
-routing_rules:
-  documentation:
-    primary: adit
-    required_review:
-      - senior_reviewer
+| Task Type | Primary Agent | Required Review |
+|---|---|---|
+| documentation | adit | senior_reviewer |
+| implementation | opung | senior_reviewer |
+| implementation_with_security_risk | opung | asep, senior_reviewer |
+| security_review | asep | senior_reviewer |
+| devops_review | doni | senior_reviewer |
+| runtime_issue | supri | doni, senior_reviewer |
+| dependency_change | doni | asep, senior_reviewer, human required |
+| critical | human_owner | automation disabled |
 
-  implementation:
-    primary: opung
-    required_review:
-      - senior_reviewer
+## 6. Dispatch Contract
 
-  implementation_with_security_risk:
-    primary: opung
-    required_review:
-      - asep
-      - senior_reviewer
+A dispatch creates:
 
-  security_review:
-    primary: asep
-    required_review:
-      - senior_reviewer
-
-  devops_review:
-    primary: doni
-    required_review:
-      - senior_reviewer
-
-  runtime_issue:
-    primary: supri
-    required_review:
-      - doni
-      - senior_reviewer
-
-  high_risk:
-    primary: siwa
-    required_review:
-      - asep
-      - doni
-      - senior_reviewer
-    requires_human_review: true
+```text
+Kanban task
+State file
+Message assignment
 ```
 
-## 7. Manifest Contract
+Message assignment path:
 
-Every task starts from a manifest.
+```text
+data/agent_workspace/agents/{agent_id}/inbox/{message_id}.json
+```
 
-Required fields:
+State path:
+
+```text
+data/agent_workspace/state/{task_id}.state.json
+```
+
+Kanban path:
+
+```text
+data/agent_workspace/kanban/board.json
+```
+
+## 7. Artifact Contract
+
+An artifact record must include:
 
 ```yaml
+artifact_id:
 task_id:
-target_id:
-title:
-task_type:
-objective:
-risk_level:
-mode:
-allowed_paths:
-denied_paths:
-required_outputs:
-required_reviewers:
-stop_conditions:
+agent_id:
+artifact_type:
+path:
+status:
+metadata:
 ```
 
-Allowed modes:
+Artifact must:
 
 ```text
-plan
-review
-patch
-dry_run
+use a valid artifact type
+exist inside workspace
+not be empty
+not escape workspace path
 ```
 
-## 8. Workspace Contract
-
-Workspace root:
+Valid artifact types include:
 
 ```text
-data/agent_workspace/
-```
-
-Required folders:
-
-```text
-kanban/
-agents/
-manifests/
-orchestration/
-plans/
-patches/
-docs/
-reviews/
-safety/
-verification/
-runner/
-approvals/
-requests/
-audit/
-state/
-logs/
-traces/
-performance/
-errors/
-```
-
-## 9. Message Bus Contract
-
-Initial message bus is file-based.
-
-```text
-data/agent_workspace/agents/{agent_id}/inbox/
-data/agent_workspace/agents/{agent_id}/outbox/
-```
-
-Message types:
-
-```text
-task_assignment
-artifact_ready
-review_request
-revision_request
-human_escalation
-validation_request
-runner_request
+orchestration_plan
+implementation_plan
+draft_patch
+docs_plan
+docs_patch
+doc_gap_report
+security_review
+devops_review
+runtime_review
+senior_review
+safety_report
+runner_report
+verification_report
 commit_request
+error_report
+performance_warning
 ```
 
-## 10. Artifact Contract
+## 8. Artifact Collection Contract
 
-Every artifact must include:
+Agent reply message must include:
 
-```text
-task_id
-agent_id
-artifact_type
-created_at
-decision if applicable
-evidence if making a finding
+```json
+{
+  "message_id": "...",
+  "from_agent": "...",
+  "to_agent": "siwa",
+  "task_id": "...",
+  "message_type": "artifact_ready",
+  "status": "completed",
+  "artifacts": {}
+}
 ```
 
-Every artifact path must stay inside:
+The collector must:
 
 ```text
-data/agent_workspace/
+validate reply shape
+validate each artifact
+register each valid artifact
+attach artifact to Kanban
+update state
+move valid task to ready_for_senior
+move incomplete task to needs_revision
 ```
 
-## 11. Test Contract
+## 9. Senior Review Contract
 
-Initial tests must cover:
+Valid Senior Reviewer decisions:
 
 ```text
-required config exists
-agent registry valid
-required agents exist
-tool registry valid
-routing references existing agents
-tool grants reference existing tools
-forbidden tools are denied to normal agents
-workspace folders exist
-script relationship is valid
-core tool modules import safely
+approve_for_runner
+request_revision
+request_specialist_review
+block
+human_required
 ```
 
-## 12. Safety Contract
+Decision mapping:
 
-Safety Gate blocks:
+| Decision | Next Status |
+|---|---|
+| approve_for_runner | ready_for_verification |
+| request_revision | needs_revision |
+| request_specialist_review | needs_review |
+| block | blocked |
+| human_required | human_required |
+
+Senior Review Gate must write:
 
 ```text
-secret access
-.env modification
-denied path access
-arbitrary shell
-mass delete
-push
-merge
+data/agent_workspace/reviews/{task_id}.senior_review.md
+```
+
+It must register the review as an artifact.
+
+## 10. Safety Rule
+
+Denied actions include:
+
+```text
+run_shell
+arbitrary_shell
+git_push
+git_merge
+git_rebase
+git_reset_hard
+modify_env
+read_secret
+delete_file
+deploy
 release
-deployment without human approval
-agent permission escalation
-Commit Gate bypass
-Senior Reviewer bypass
-Verification Engine bypass
 ```
 
-## 13. Commit Contract
-
-Commit Gate can create a local commit only if:
+Denied paths include:
 
 ```text
-manifest valid
-required artifacts complete
-Senior Reviewer approved
+.env
+.env.*
+.git/
+data/secrets/
+```
+
+## 11. Commit Rule
+
+Commit Gate currently evaluates readiness only.
+
+It does not run `git commit`.
+
+Future commit readiness must require:
+
+```text
+Senior Review approval
 Safety Gate PASS
-Runner PASS
+Runner report PASS
 Verification Engine PASS
-Asep not blocking
-Doni not blocking
-changed files inside allowed paths
+no blocking specialist review
+manifest allows commit request
 push disabled
 ```
+
+## 12. Current Limitation
+
+The system is not yet an autonomous developer.
+
+It is currently a deterministic local workflow skeleton.
