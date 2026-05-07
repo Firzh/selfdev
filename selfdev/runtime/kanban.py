@@ -44,12 +44,14 @@ class KanbanBoard:
         task_id = task.get("task_id")
         if not task_id:
             raise ValueError("task.task_id is required")
+
         status = task.get("status", "todo")
         if status not in VALID_STATUSES:
             raise ValueError(f"Invalid status: {status}")
 
         data = self._read()
         data.setdefault("tasks", {})
+
         if task_id in data["tasks"]:
             raise ValueError(f"Task already exists: {task_id}")
 
@@ -68,6 +70,16 @@ class KanbanBoard:
             raise KeyError(f"Task not found: {task_id}")
 
         data["tasks"][task_id]["status"] = status
+        self._write(data)
+
+    def attach_artifact(self, task_id: str, artifact_type: str, artifact_id: str) -> None:
+        data = self._read()
+        if task_id not in data.get("tasks", {}):
+            raise KeyError(f"Task not found: {task_id}")
+
+        task = data["tasks"][task_id]
+        task.setdefault("artifacts", {})
+        task["artifacts"][artifact_type] = artifact_id
         self._write(data)
 
     def get_task(self, task_id: str) -> dict[str, Any]:
