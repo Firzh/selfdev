@@ -10,13 +10,25 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse, unquote
+from urllib.parse import unquote, urlparse
 
+from selfdev.api.action_availability import get_action_availability
 from selfdev.api.read_api import ReadApi
 
 
 def _json_bytes(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8")
+
+
+def _safe_task_id(raw_task_id: str) -> str | None:
+    task_id = unquote(raw_task_id).strip()
+    if not task_id:
+        return None
+    if "/" in task_id or "\\" in task_id:
+        return None
+    if task_id in {".", ".."}:
+        return None
+    return task_id
 
 
 def create_handler(
@@ -71,8 +83,8 @@ def create_handler(
                     return
 
                 if path.startswith("/state/"):
-                    task_id = unquote(path.removeprefix("/state/")).strip()
-                    if not task_id or "/" in task_id or "\\" in task_id:
+                    task_id = _safe_task_id(path.removeprefix("/state/"))
+                    if task_id is None:
                         self._send_json(400, {
                             "error": "invalid_task_id",
                             "message": "task_id must be a single path segment",
@@ -80,6 +92,22 @@ def create_handler(
                         return
 
                     self._send_json(200, api.state(task_id))
+                    return
+
+                if path.startswith("/actions/"):
+                    task_id = _safe_task_id(path.removeprefix("/actions/"))
+                    if task_id is None:
+                        self._send_json(400, {
+                            "error": "invalid_task_id",
+                            "message": "task_id must be a single path segment",
+                        })
+                        return
+
+                    result = get_action_availability(
+                        task_id=task_id,
+                        workspace=workspace_path,
+                    )
+                    self._send_json(200, result.to_dict())
                     return
 
                 self._send_json(404, {

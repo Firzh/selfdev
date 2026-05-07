@@ -33,6 +33,23 @@ def get_json(url: str) -> dict:
         return json.loads(response.read().decode("utf-8"))
 
 
+def setup_task(workspace: Path, task_id: str, status: str) -> None:
+    board = KanbanBoard(workspace)
+    board.create_task({
+        "task_id": task_id,
+        "title": "HTTP read test",
+        "status": status,
+        "priority": "medium",
+        "risk_level": "low",
+        "target_id": "selfdev",
+        "owner_agent": "siwa",
+        "assigned_by": "human_owner",
+        "task_type": "documentation",
+        "artifacts": {},
+        "blocked_by": [],
+    })
+
+
 def test_http_health_endpoint(tmp_path: Path):
     server, base_url = start_test_server(tmp_path / "workspace")
     try:
@@ -59,20 +76,7 @@ def test_http_agents_endpoint(tmp_path: Path):
 
 def test_http_kanban_endpoint_reads_workspace(tmp_path: Path):
     workspace = tmp_path / "workspace"
-    board = KanbanBoard(workspace)
-    board.create_task({
-        "task_id": "task-http-001",
-        "title": "HTTP read test",
-        "status": "todo",
-        "priority": "medium",
-        "risk_level": "low",
-        "target_id": "selfdev",
-        "owner_agent": "siwa",
-        "assigned_by": "human_owner",
-        "task_type": "documentation",
-        "artifacts": {},
-        "blocked_by": [],
-    })
+    setup_task(workspace, "task-http-001", "todo")
 
     server, base_url = start_test_server(workspace)
     try:
@@ -97,6 +101,51 @@ def test_http_state_endpoint_reads_task_state(tmp_path: Path):
         payload = get_json(f"{base_url}/state/task-http-state")
         assert payload["exists"] is True
         assert payload["state"]["status"] == "verified"
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_http_actions_endpoint_reads_action_availability(tmp_path: Path):
+    workspace = tmp_path / "workspace"
+    setup_task(workspace, "task-http-actions", "ready_for_senior")
+
+    server, base_url = start_test_server(workspace)
+    try:
+        payload = get_json(f"{base_url}/actions/task-http-actions")
+        assert payload["task_id"] == "task-http-actions"
+        assert payload["exists"] is True
+        assert payload["status"] == "ready_for_senior"
+        assert payload["available_actions"]["approve_for_runner"] is True
+        assert payload["available_actions"]["request_revision"] is True
+        assert payload["available_actions"]["run_safety_gate"] is False
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_http_actions_endpoint_for_missing_task(tmp_path: Path):
+    server, base_url = start_test_server(tmp_path / "workspace")
+    try:
+        payload = get_json(f"{base_url}/actions/task-missing")
+        assert payload["task_id"] == "task-missing"
+        assert payload["exists"] is False
+        assert payload["available_actions"]["approve_for_runner"] is False
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_http_rejects_invalid_action_task_id(tmp_path: Path):
+    server, base_url = start_test_server(tmp_path / "workspace")
+    try:
+        try:
+            urllib.request.urlopen(f"{base_url}/actions/bad/task", timeout=5)
+            raise AssertionError("Expected HTTP 400")
+        except urllib.error.HTTPError as exc:
+            assert exc.code == 400
+            payload = json.loads(exc.read().decode("utf-8"))
+            assert payload["error"] == "invalid_task_id"
     finally:
         server.shutdown()
         server.server_close()
