@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SelfDev Task Manifest",
+  "type": "object",
+  "required": [
+    "task_id",
+    "title",
+    "risk_level",
+    "mode",
+    "task_type",
+    "objective",
+    "target_id",
+    "allowed_paths",
+    "denied_paths",
+    "required_outputs",
+    "required_reviews",
+    "stop_conditions"
+  ],
+  "properties": {
+    "task_id": { "type": "string", "minLength": 3 },
+    "title": { "type": "string", "minLength": 3 },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["plan", "patch", "review", "validate", "commit_request"]
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "documentation",
+        "implementation",
+        "implementation_with_security_risk",
+        "security_review",
+        "devops_review",
+        "runtime_issue",
+        "dependency_change",
+        "tool_registry_change",
+        "agent_permission_change",
+        "high_risk",
+        "critical"
+      ]
+    },
+    "target_id": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 10 },
+    "allowed_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "denied_paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "required_outputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "required_reviews": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "stop_conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "human_gate_required": { "type": "boolean" },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}

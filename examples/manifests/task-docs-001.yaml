@@ -1,0 +1,26 @@
+task_id: task-docs-001
+title: Update SelfDev documentation baseline
+risk_level: low
+mode: plan
+task_type: documentation
+target_id: selfdev
+objective: Create a documentation plan for the SelfDev baseline.
+allowed_paths:
+  - README.md
+  - docs/
+denied_paths:
+  - .env
+  - .env.*
+  - .git/
+  - data/secrets/
+required_outputs:
+  - doc_gap_report
+  - docs_plan
+required_reviews:
+  - senior_reviewer
+stop_conditions:
+  - manifest_invalid
+  - scope_unclear
+  - evidence_missing
+human_gate_required: false
+notes: Initial safe documentation task.
