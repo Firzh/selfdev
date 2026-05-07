@@ -32,6 +32,23 @@ All notable changes to SelfDev are documented here.
 - Added artifact collection flow.
 - Added senior review gate skeleton.
 - Added senior review CLI.
+- Added Safety Gate integration flow.
+- Added safety decision CLI.
+- Added Verification Report Flow.
+- Added verification report CLI.
+- Added Runner Request Flow.
+- Added runner report CLI.
+- Added Commit Readiness Flow.
+- Added commit readiness CLI.
+- Added Full Deterministic Dry Run Flow.
+- Added full dry run CLI.
+- Added read-only API service layer.
+- Added read-only API CLI.
+- Added minimal local HTTP API skeleton with Python standard library.
+- Added HTTP CLI server.
+- Added API Action Availability Model.
+- Added action availability CLI.
+- Added `/actions/{task_id}` endpoint to read-only HTTP API.
 
 ### Changed
 
@@ -39,6 +56,9 @@ All notable changes to SelfDev are documented here.
 - Clarified that `ai-rag-local` is only the first managed target system.
 - Clarified that agents cannot execute shell commands, apply patches, commit, push, merge, deploy, or release.
 - Clarified that execution must go through controlled runtime components.
+- Clarified that Runner remains a validator in the current phase.
+- Clarified that Commit Gate evaluates readiness only and does not execute `git commit`.
+- Expanded read-only API capabilities for future UI integration.
 
 ### Security
 
@@ -47,8 +67,11 @@ All notable changes to SelfDev are documented here.
 - Added initial Safety Gate checks for denied actions and denied paths.
 - Added artifact path escape validation.
 - Added human gate requirement for high-risk task types.
+- Added HTTP rejection for POST, PUT, and DELETE in read-only API.
+- Added task ID single-segment validation for `/state/{task_id}` and `/actions/{task_id}`.
+- Added action availability model so UI does not infer authority client-side.
 
 ### Tests
 
-- Contract tests are green at Documentation Milestone 01.
-- Current local commit count reported by operator: 12.
+- Contract tests are green at Documentation Milestone 02.
+- Current local commit count reported by operator: 22.

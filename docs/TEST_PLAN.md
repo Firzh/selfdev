@@ -4,7 +4,7 @@
 
 This test plan defines the current SelfDev testing scope.
 
-The test suite verifies contract consistency, config integrity, runtime skeleton behavior, manifest validation, routing, dispatch, artifact handling, and senior review flow.
+The test suite verifies contract consistency, config integrity, runtime skeleton behavior, manifest validation, routing, dispatch, artifact handling, review gates, dry run flow, and read-only API behavior.
 
 ## Test Command
 
@@ -72,62 +72,131 @@ CLI accepts example manifest
 
 ### Routing Gate
 
-Checks:
-
-```text
-routing rules load
-documentation routes to Adit
-implementation routes to Opung
-dependency_change requires human review
-invalid manifest does not route
-CLI routes example manifest
-```
+Checks deterministic routing by `task_type`.
 
 ### Dispatch Flow
 
-Checks:
-
-```text
-documentation manifest creates message, state, and Kanban task
-high-risk manifest goes to human_required
-dispatch CLI accepts example manifest
-```
+Checks manifest dispatch to Kanban, State, and Message Bus.
 
 ### Artifact Registry and Artifact Gate
 
-Checks:
-
-```text
-artifact can be registered
-valid artifact passes gate
-empty artifact fails
-path escape fails
-missing required artifact type fails
-register artifact CLI works
-```
+Checks artifact existence, non-empty content, type validation, required artifact checks, and path escape blocking.
 
 ### Artifact Collection Flow
 
-Checks:
-
-```text
-artifact_ready reply registers artifact
-Kanban is updated
-state is updated
-missing required artifact triggers needs_revision
-invalid reply shape blocks collection
-CLI collects artifact reply
-```
+Checks `artifact_ready` reply collection and status update.
 
 ### Senior Review Gate
 
+Checks senior review decision mapping.
+
+### Safety Gate Integration
+
 Checks:
 
 ```text
-approve_for_runner updates task to ready_for_verification
-request_revision updates task to needs_revision
-not-ready task is blocked
-senior review CLI works
+safety report is written
+safety artifact is registered
+safe changed paths pass
+denied changed paths block
+denied action blocks
+Kanban is updated
+state is updated
+```
+
+### Verification Report Flow
+
+Checks:
+
+```text
+verification report is written
+required file PASS
+missing file FAIL
+Kanban is updated
+state is updated
+CLI PASS and FAIL exit codes
+```
+
+### Runner Request Flow
+
+Checks:
+
+```text
+safe runner request is accepted
+dangerous action is blocked
+runner report is written
+Kanban is updated
+state is updated
+CLI accepts and blocks correctly
+```
+
+### Commit Readiness Flow
+
+Checks:
+
+```text
+required artifacts produce READY
+missing artifacts produce BLOCKED
+commit request report is written
+no git commit is executed
+```
+
+### Full Deterministic Dry Run
+
+Checks:
+
+```text
+manifest
+dispatch
+mock artifact reply
+artifact collection
+senior review
+safety
+verification
+runner
+commit readiness
+```
+
+### Read-only API Service Layer
+
+Checks:
+
+```text
+health
+summary
+agents
+tools
+kanban
+artifacts
+state
+```
+
+### Read-only HTTP API
+
+Checks:
+
+```text
+GET /health
+GET /agents
+GET /kanban
+GET /state/{task_id}
+GET /actions/{task_id}
+404 handling
+405 for POST
+invalid task_id rejection
+```
+
+### API Action Availability Model
+
+Checks action availability for:
+
+```text
+missing task
+ready_for_senior
+ready_for_verification
+verified
+commit_ready
+human_required
 ```
 
 ## Current Expected Result
@@ -139,7 +208,7 @@ Operator reported current state:
 ```text
 Tests green
 Commit completed
-Local commit count: 12
+Local commit count: 22
 ```
 
 ## Required Test Rule
@@ -154,15 +223,13 @@ Do not commit if tests are red.
 
 ## Next Test Scope
 
-For the next phase, add tests for Safety Gate Integration:
+For the next phase, add tests for minimal UI static console:
 
 ```text
-safety report is written
-safety artifact is registered
-safe changed paths pass
-denied changed paths block
-denied action blocks
-Kanban is updated
-state is updated
-Runner is blocked when Safety Gate blocks
+index.html exists
+app.js exists
+styles.css exists
+UI contains expected API endpoint references
+UI does not contain mutation methods
+UI does not expose shell, patch, commit, push, merge, deploy actions
 ```

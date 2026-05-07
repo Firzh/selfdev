@@ -18,6 +18,8 @@ No agent execution is active.
 
 No shell execution is active.
 
+No mutation API is active.
+
 ## 3. Current Core Modules
 
 | Module | Purpose |
@@ -31,11 +33,19 @@ No shell execution is active.
 | `selfdev.runtime.artifact_registry` | Register artifact records |
 | `selfdev.runtime.artifact_collector` | Collect `artifact_ready` replies |
 | `selfdev.runtime.senior_review_gate` | Write senior review decision |
+| `selfdev.runtime.safety_flow` | Write Safety Gate report |
+| `selfdev.runtime.verification_flow` | Write Verification Engine report |
+| `selfdev.runtime.runner_flow` | Write Runner report without execution |
+| `selfdev.runtime.commit_readiness_flow` | Write Commit Gate readiness report |
+| `selfdev.runtime.full_dry_run` | Run deterministic full dry run |
 | `selfdev.tools.safety_gate` | Check denied actions and denied paths |
 | `selfdev.tools.verification_engine` | Run minimal deterministic verification |
 | `selfdev.tools.runner` | Validate Runner requests only |
 | `selfdev.tools.commit_gate` | Evaluate commit readiness only |
 | `selfdev.tools.artifact_gate` | Validate artifact records |
+| `selfdev.api.read_api` | Framework-free read-only API service |
+| `selfdev.api.http_server` | Standard-library read-only HTTP API |
+| `selfdev.api.action_availability` | Read-only action availability model |
 
 ## 4. Manifest Contract
 
@@ -95,35 +105,7 @@ Current routing examples:
 | dependency_change | doni | asep, senior_reviewer, human required |
 | critical | human_owner | automation disabled |
 
-## 6. Dispatch Contract
-
-A dispatch creates:
-
-```text
-Kanban task
-State file
-Message assignment
-```
-
-Message assignment path:
-
-```text
-data/agent_workspace/agents/{agent_id}/inbox/{message_id}.json
-```
-
-State path:
-
-```text
-data/agent_workspace/state/{task_id}.state.json
-```
-
-Kanban path:
-
-```text
-data/agent_workspace/kanban/board.json
-```
-
-## 7. Artifact Contract
+## 6. Artifact Contract
 
 An artifact record must include:
 
@@ -146,56 +128,7 @@ not be empty
 not escape workspace path
 ```
 
-Valid artifact types include:
-
-```text
-orchestration_plan
-implementation_plan
-draft_patch
-docs_plan
-docs_patch
-doc_gap_report
-security_review
-devops_review
-runtime_review
-senior_review
-safety_report
-runner_report
-verification_report
-commit_request
-error_report
-performance_warning
-```
-
-## 8. Artifact Collection Contract
-
-Agent reply message must include:
-
-```json
-{
-  "message_id": "...",
-  "from_agent": "...",
-  "to_agent": "siwa",
-  "task_id": "...",
-  "message_type": "artifact_ready",
-  "status": "completed",
-  "artifacts": {}
-}
-```
-
-The collector must:
-
-```text
-validate reply shape
-validate each artifact
-register each valid artifact
-attach artifact to Kanban
-update state
-move valid task to ready_for_senior
-move incomplete task to needs_revision
-```
-
-## 9. Senior Review Contract
+## 7. Senior Review Contract
 
 Valid Senior Reviewer decisions:
 
@@ -217,15 +150,14 @@ Decision mapping:
 | block | blocked |
 | human_required | human_required |
 
-Senior Review Gate must write:
+## 8. Safety Contract
+
+Safety Gate checks:
 
 ```text
-data/agent_workspace/reviews/{task_id}.senior_review.md
+requested actions
+changed paths
 ```
-
-It must register the review as an artifact.
-
-## 10. Safety Rule
 
 Denied actions include:
 
@@ -252,26 +184,141 @@ Denied paths include:
 data/secrets/
 ```
 
-## 11. Commit Rule
+Safety output:
+
+```text
+data/agent_workspace/safety/{task_id}.safety_report.md
+```
+
+## 9. Verification Contract
+
+Verification Report Flow currently checks required files.
+
+PASS status:
+
+```text
+verified
+```
+
+FAIL status:
+
+```text
+verification_failed
+```
+
+Verification output:
+
+```text
+data/agent_workspace/verification/{task_id}.verification_report.md
+```
+
+## 10. Runner Contract
+
+Runner Request Flow currently validates the requested action only.
+
+It does not run commands.
+
+Accepted status:
+
+```text
+commit_ready
+```
+
+Blocked status:
+
+```text
+blocked
+```
+
+Runner output:
+
+```text
+data/agent_workspace/runner/{task_id}.runner_report.md
+```
+
+## 11. Commit Readiness Contract
 
 Commit Gate currently evaluates readiness only.
 
 It does not run `git commit`.
 
-Future commit readiness must require:
+Required artifacts:
 
 ```text
-Senior Review approval
-Safety Gate PASS
-Runner report PASS
-Verification Engine PASS
-no blocking specialist review
-manifest allows commit request
-push disabled
+senior_review
+safety_report
+verification_report
+runner_report
 ```
 
-## 12. Current Limitation
+Commit readiness output:
+
+```text
+data/agent_workspace/approvals/{task_id}.commit_request.md
+```
+
+## 12. Read-only API Contract
+
+Current framework-free service:
+
+```text
+selfdev.api.read_api.ReadApi
+```
+
+Current CLI:
+
+```text
+scripts/selfdev/read_api.py
+```
+
+Current HTTP server:
+
+```text
+scripts/selfdev/serve_read_api.py
+```
+
+Current HTTP endpoints:
+
+```text
+GET /health
+GET /summary
+GET /agents
+GET /tools
+GET /kanban
+GET /artifacts
+GET /state/{task_id}
+GET /actions/{task_id}
+```
+
+The HTTP API rejects:
+
+```text
+POST
+PUT
+DELETE
+```
+
+## 13. Action Availability Contract
+
+Action availability is read-only.
+
+It returns:
+
+```json
+{
+  "task_id": "...",
+  "exists": true,
+  "status": "...",
+  "available_actions": {},
+  "reasons": {},
+  "artifacts": {}
+}
+```
+
+The UI must use this model instead of inferring action authority client-side.
+
+## 14. Current Limitation
 
 The system is not yet an autonomous developer.
 
-It is currently a deterministic local workflow skeleton.
+It is currently a deterministic local workflow skeleton with read-only API support.

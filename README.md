@@ -2,13 +2,13 @@
 
 SelfDev is a standalone local multi-agent self-development system.
 
-SelfDev is not only a helper for `ai-rag-local`. The first managed target can be `ai-rag-local`, but the system is designed to maintain and develop multiple local systems, including RAG systems, agent systems, documentation systems, backend projects, DevOps configurations, and runtime workflows.
+SelfDev is not only a helper for `ai-rag-local`. The first managed target can be `ai-rag-local`, but the system is designed to maintain and develop multiple local systems, including RAG systems, agent systems, documentation systems, backend projects, DevOps configurations, runtime workflows, and local operator consoles.
 
 ## Current Status
 
-SelfDev is in the contract-first implementation phase.
+SelfDev is in the deterministic contract-first implementation phase.
 
-The system currently has deterministic foundations for:
+The system currently supports:
 
 - repository contract tests
 - baseline configuration
@@ -20,18 +20,27 @@ The system currently has deterministic foundations for:
 - artifact gate
 - artifact collection
 - senior review gate
+- safety gate integration
+- verification report flow
+- runner request flow
+- commit readiness flow
+- full deterministic dry run
+- read-only API service layer
+- read-only local HTTP API
+- API action availability model
+- `/actions/{task_id}` HTTP endpoint
 
 No LLM execution is active yet.
 
 No shell execution is allowed through agents.
 
-No commit, push, merge, deployment, or release automation is active.
+No patch application, real git commit, push, merge, deployment, or release automation is active.
 
 ## Core Principle
 
 SelfDev follows a failure-first architecture.
 
-Agents may fail. LLM output may be wrong. Tools may fail. Artifacts may be incomplete. The system must still remain safe, auditable, and recoverable.
+Agents may fail. LLM output may be wrong. Tools may fail. Artifacts may be incomplete. The system must still remain safe, auditable, deterministic, and recoverable.
 
 ## Main Agents
 
@@ -47,12 +56,12 @@ Agents may fail. LLM output may be wrong. Tools may fail. Artifacts may be incom
 
 ## Core Runtime Components
 
-| Component | Function |
-|---|---|
-| Runner | Controlled executor, not active as a real executor yet |
-| Verification Engine | Deterministic validation layer |
-| Safety Gate | Hard policy boundary |
-| Commit Gate | Local commit readiness evaluator, not committing yet |
+| Component | Function | Current State |
+|---|---|---|
+| Runner | Controlled executor | Request validator only |
+| Verification Engine | Deterministic validation layer | Report writer for required files |
+| Safety Gate | Hard policy boundary | Denied action and path checker |
+| Commit Gate | Commit readiness evaluator | Does not run git commit |
 
 ## Current Safe Flow
 
@@ -74,6 +83,20 @@ Artifact Collector
 Artifact Registry + Artifact Gate
   ↓
 Senior Review Gate
+  ↓
+Safety Gate
+  ↓
+Verification Report Flow
+  ↓
+Runner Request Flow
+  ↓
+Commit Readiness Flow
+```
+
+## Full Dry Run
+
+```bash
+python scripts/selfdev/run_full_dry_run.py examples/manifests/task-docs-001.yaml
 ```
 
 ## Run Tests
@@ -82,22 +105,39 @@ Senior Review Gate
 python scripts/selfdev/run_contract_tests.py
 ```
 
-## Validate Example Manifest
+## Read-only API CLI
 
 ```bash
-python scripts/selfdev/validate_manifest.py examples/manifests/task-docs-001.yaml
+python scripts/selfdev/read_api.py health
+python scripts/selfdev/read_api.py summary
+python scripts/selfdev/show_actions.py --task-id <task_id>
 ```
 
-## Route Example Manifest
+## Read-only HTTP API
+
+Check mode:
 
 ```bash
-python scripts/selfdev/route_manifest.py examples/manifests/task-docs-001.yaml
+python scripts/selfdev/serve_read_api.py --check
 ```
 
-## Dispatch Example Manifest
+Run server:
 
 ```bash
-python scripts/selfdev/dispatch_manifest.py examples/manifests/task-docs-001.yaml
+python scripts/selfdev/serve_read_api.py --host 127.0.0.1 --port 8765
+```
+
+Available read-only endpoints:
+
+```text
+GET /health
+GET /summary
+GET /agents
+GET /tools
+GET /kanban
+GET /artifacts
+GET /state/{task_id}
+GET /actions/{task_id}
 ```
 
 ## Development Rule

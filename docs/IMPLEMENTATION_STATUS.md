@@ -1,14 +1,16 @@
 # Implementation Status
 
-**Milestone:** Documentation Milestone 01  
-**Status:** Active development  
-**Last update reason:** Local commit count reached 12. Documentation update required after 10 commits.
+**Milestone:** Documentation Milestone 02  
+**Status:** Active deterministic development  
+**Last update reason:** Local commit count reached 22. Documentation update required after 10 commits.
 
 ## Summary
 
-SelfDev has reached the first stable deterministic skeleton stage.
+SelfDev has reached the second deterministic skeleton stage.
 
-The project currently supports contract validation, manifest validation, deterministic routing, dispatch, artifact collection, and senior review decision writing.
+The project now supports a complete safe dry-run lifecycle and a read-only API surface.
+
+The system can validate a manifest, route it, dispatch it, collect artifacts, perform senior review, run Safety Gate, produce verification report, validate Runner request, evaluate commit readiness, and expose read-only state through CLI and HTTP.
 
 No autonomous agent execution exists yet.
 
@@ -16,7 +18,9 @@ No LLM integration exists yet.
 
 No patch application exists yet.
 
-No real commit automation exists yet.
+No real git commit automation exists yet.
+
+No write API exists yet.
 
 ## Implemented
 
@@ -50,6 +54,18 @@ No real commit automation exists yet.
 | Artifact registration CLI | Done | `scripts/selfdev/register_artifact.py` |
 | Artifact collection flow | Done | `artifact_ready` reply collection |
 | Senior Review Gate skeleton | Done | Writes senior review and updates state |
+| Safety Gate Integration | Done | Writes safety report and registers artifact |
+| Verification Report Flow | Done | Writes verification report and registers artifact |
+| Runner Request Flow | Done | Writes runner report, no execution |
+| Commit Readiness Flow | Done | Writes commit request report, no commit |
+| Full Deterministic Dry Run | Done | End-to-end safe dry run |
+| Read-only API service layer | Done | Framework-free service layer |
+| Read-only API CLI | Done | `scripts/selfdev/read_api.py` |
+| Local HTTP API skeleton | Done | Python standard library HTTP server |
+| HTTP server CLI | Done | `scripts/selfdev/serve_read_api.py` |
+| Action Availability Model | Done | Read-only action gating model |
+| Action Availability CLI | Done | `scripts/selfdev/show_actions.py` |
+| `/actions/{task_id}` HTTP endpoint | Done | Read-only UI support endpoint |
 
 ## Not Yet Implemented
 
@@ -64,27 +80,35 @@ No real commit automation exists yet.
 | Supri runtime analysis generation | Not started | No sysadmin agent execution yet |
 | Runner real command execution | Not started | Current Runner only validates request |
 | Patch apply check | Not started | Needed before Runner apply |
-| Verification report writing | Not started | Current verification is minimal |
-| Safety report writing | Not started | Current safety result is in-memory only |
+| Safety report policy loading from YAML | Not complete | Current flow uses default safety constants |
+| Verification profiles | Not started | Current verification checks required files only |
 | Commit Gate real local commit | Not started | Current Commit Gate only evaluates readiness |
+| Write API actions | Not started | Read-only API only |
 | UI dashboard | Not started | Design exists, implementation pending |
-| API server | Not started | FastAPI layer pending |
 | Desktop wrapper | Not started | Tauri/PWA/Electron later |
 
 ## Current Development Position
 
 ```text
-Phase 0: Documentation baseline              Done
-Phase 1: Contract baseline                   Done
-Phase 2: Runtime skeleton                    Done
-Phase 3: Manifest validator                  Done
-Phase 4: Routing gate                        Done
-Phase 5: Dispatch flow                       Done
-Phase 6: Artifact registry and gate          Done
-Phase 7: Artifact collection flow            Done
-Phase 8: Senior review gate                  Done
-Phase 9: Safety Gate integration             Next
-Phase 10: Documentation milestone update     In progress
+Phase 0: Documentation baseline                         Done
+Phase 1: Contract baseline                              Done
+Phase 2: Runtime skeleton                               Done
+Phase 3: Manifest validator                             Done
+Phase 4: Routing gate                                   Done
+Phase 5: Dispatch flow                                  Done
+Phase 6: Artifact registry and gate                     Done
+Phase 7: Artifact collection flow                       Done
+Phase 8: Senior review gate                             Done
+Phase 9: Safety Gate integration                        Done
+Phase 10: Verification Report Flow                      Done
+Phase 11: Runner Request Flow                           Done
+Phase 12: Commit Readiness Flow                         Done
+Phase 13: Full Deterministic Dry Run                    Done
+Phase 14: Read-only API service layer                    Done
+Phase 15: Local HTTP API skeleton                        Done
+Phase 16: API Action Availability Model                  Done
+Phase 17: Expose Action Availability in HTTP API         Done
+Phase 18: Documentation Milestone 02                     In progress
 ```
 
 ## Next Phase
@@ -92,11 +116,14 @@ Phase 10: Documentation milestone update     In progress
 Next implementation phase:
 
 ```text
-Safety Gate Integration
+Minimal UI static console skeleton
 ```
 
 Goal:
 
 ```text
-Before Runner, Verification, or Commit Gate can continue, a safety decision artifact must be generated and stored.
+Create a static local operator console that can consume the read-only HTTP API.
+No mutation.
+No command execution.
+No desktop wrapper yet.
 ```
