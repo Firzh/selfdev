@@ -1,7 +1,7 @@
 """Deterministic Safety Gate.
 
-This module does not execute actions. It only classifies whether a proposed
-action or changed path is safe under local policy.
+Safety Gate does not execute actions.
+It only checks requested actions and paths against local policy.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ DEFAULT_DENIED_ACTIONS = {
 
 DEFAULT_DENIED_PATHS = {
     ".env",
+    ".env.*",
     ".git/",
     "data/secrets/",
 }
@@ -45,10 +46,31 @@ def normalize_path(path: str) -> str:
     return str(PurePosixPath(path.replace("\\", "/")))
 
 
+def _matches_denied_path(path: str, denied_path: str) -> bool:
+    normalized = normalize_path(path)
+    denied = normalize_path(denied_path)
+
+    if denied.endswith("*"):
+        return normalized.startswith(denied[:-1])
+
+    if denied.endswith("/"):
+        return normalized.startswith(denied)
+
+    return normalized == denied or normalized.startswith(denied + "/")
+
+
 def check_action(action: str, denied_actions: set[str] | None = None) -> SafetyResult:
     denied = denied_actions or DEFAULT_DENIED_ACTIONS
     if action in denied:
         return SafetyResult(status="BLOCK", reasons=[f"Denied action: {action}"])
+    return SafetyResult(status="PASS", reasons=[])
+
+
+def check_actions(actions: list[str], denied_actions: set[str] | None = None) -> SafetyResult:
+    denied = denied_actions or DEFAULT_DENIED_ACTIONS
+    reasons = [f"Denied action: {action}" for action in actions if action in denied]
+    if reasons:
+        return SafetyResult(status="BLOCK", reasons=reasons)
     return SafetyResult(status="PASS", reasons=[])
 
 
@@ -57,12 +79,11 @@ def check_paths(paths: list[str], denied_paths: set[str] | None = None) -> Safet
     reasons: list[str] = []
 
     for raw_path in paths:
-        path = normalize_path(raw_path)
         for denied_path in denied:
-            denied_norm = normalize_path(denied_path)
-            if path == denied_norm.rstrip("/") or path.startswith(denied_norm):
+            if _matches_denied_path(raw_path, denied_path):
                 reasons.append(f"Denied path touched: {raw_path}")
 
     if reasons:
         return SafetyResult(status="BLOCK", reasons=reasons)
+
     return SafetyResult(status="PASS", reasons=[])
