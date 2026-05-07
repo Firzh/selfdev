@@ -6,3 +6,4 @@ __pycache__/
 .env.*
 data/agent_workspace/*
 !data/agent_workspace/.gitkeep
+bootstrap_*.py
