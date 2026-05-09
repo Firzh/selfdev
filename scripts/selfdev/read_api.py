@@ -28,6 +28,7 @@ def main() -> int:
             "kanban",
             "artifacts",
             "artifact",
+            "artifact-preview",
             "state",
         ],
     )
@@ -36,6 +37,7 @@ def main() -> int:
     parser.add_argument("--task-id", default="")
     parser.add_argument("--target-id", default="")
     parser.add_argument("--artifact-id", default="")
+    parser.add_argument("--max-chars", type=int, default=12000)
     args = parser.parse_args()
 
     api = ReadApi(
@@ -67,6 +69,11 @@ def main() -> int:
             print("ERROR: --artifact-id is required for artifact resource", file=sys.stderr)
             return 2
         payload = api.artifact(args.artifact_id)
+    elif args.resource == "artifact-preview":
+        if not args.artifact_id:
+            print("ERROR: --artifact-id is required for artifact-preview resource", file=sys.stderr)
+            return 2
+        payload = api.artifact_preview(args.artifact_id, max_chars=args.max_chars)
     elif args.resource == "state":
         if not args.task_id:
             print("ERROR: --task-id is required for state resource", file=sys.stderr)

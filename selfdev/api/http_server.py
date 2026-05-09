@@ -170,6 +170,17 @@ def create_handler(
                     self._send_json(200, api.target(target_id))
                     return
 
+                if path.startswith("/artifact-previews/"):
+                    artifact_id = _safe_segment(path.removeprefix("/artifact-previews/"))
+                    if artifact_id is None:
+                        self._send_json(400, {
+                            "error": "invalid_artifact_id",
+                            "message": "artifact_id must be a single path segment",
+                        })
+                        return
+                    self._send_json(200, api.artifact_preview(artifact_id))
+                    return
+
                 if path == "/artifacts":
                     self._send_json(200, api.artifacts())
                     return

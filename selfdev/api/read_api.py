@@ -12,6 +12,8 @@ from typing import Any
 
 import yaml
 
+from selfdev.runtime.artifact_preview import DEFAULT_MAX_PREVIEW_CHARS, preview_artifact
+
 
 def _safe_registry_id(value: str) -> bool:
     item_id = value.strip()
@@ -183,6 +185,17 @@ class ReadApi:
             "content_status": content_status,
             "content": content,
         }
+
+    def artifact_preview(
+        self,
+        artifact_id: str,
+        max_chars: int = DEFAULT_MAX_PREVIEW_CHARS,
+    ) -> dict[str, Any]:
+        return preview_artifact(
+            artifact_id=artifact_id,
+            workspace=self.workspace,
+            max_chars=max_chars,
+        ).to_dict()
 
     def state(self, task_id: str) -> dict[str, Any]:
         if not task_id:
