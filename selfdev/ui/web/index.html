@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SelfDev Operator Console</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SelfDev local console</p>
+        <h1>Operator Console</h1>
+      </div>
+      <span class="mode-badge" data-testid="read-only-mode">READ ONLY</span>
+    </header>
+
+    <main class="layout">
+      <section class="panel boundary-panel" aria-labelledby="boundary-title">
+        <h2 id="boundary-title">Failure-first boundary</h2>
+        <p>
+          This console only reads the local SelfDev API. It does not execute shell,
+          apply patches, commit, push, merge, deploy, release, modify environment
+          files, or read secrets.
+        </p>
+        <ul id="boundary-list"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="health-title">
+        <div class="panel-heading">
+          <h2 id="health-title">Health</h2>
+          <button id="refresh-button" type="button">Refresh read-only data</button>
+        </div>
+        <div id="health-card" class="status-card muted">Waiting for API...</div>
+      </section>
+
+      <section class="panel" aria-labelledby="summary-title">
+        <h2 id="summary-title">Summary</h2>
+        <div id="summary-grid" class="summary-grid"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="kanban-title">
+        <h2 id="kanban-title">Kanban tasks</h2>
+        <div id="task-list" class="task-list"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="actions-title">
+        <div class="panel-heading">
+          <h2 id="actions-title">Action availability</h2>
+          <label class="task-input-label">
+            Task ID
+            <input id="task-id-input" type="text" placeholder="task-docs-001" />
+          </label>
+        </div>
+        <div id="action-card" class="action-card muted">
+          Select a task to inspect backend-approved action availability.
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="endpoints-title">
+        <h2 id="endpoints-title">Read-only endpoints used</h2>
+        <ul id="endpoint-list" class="endpoint-list"></ul>
+      </section>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
