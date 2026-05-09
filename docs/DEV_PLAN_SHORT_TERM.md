@@ -2,9 +2,7 @@
 
 ## Purpose
 
-This plan tracks the short-term implementation path for SelfDev.
-
-SelfDev is a standalone local multi-agent self-development system. It can manage `ai-rag-local`, but it is not limited to `ai-rag-local`.
+This plan tracks the short-term implementation path for SelfDev. SelfDev is a standalone local multi-agent self-development system. It can manage `ai-rag-local`, but it is not limited to `ai-rag-local`.
 
 ## Milestone Rule
 
@@ -24,150 +22,59 @@ docs/TEST_PLAN.md
 ## Completed Short-Term Goals
 
 ### Goal 1: Contract baseline
-
 Status: Done
 
 ### Goal 2: Runtime skeleton
-
 Status: Done
 
 ### Goal 3: Manifest validation
-
 Status: Done
 
 ### Goal 4: Routing Gate
-
 Status: Done
 
 ### Goal 5: Dispatch Flow
-
 Status: Done
 
 ### Goal 6: Artifact Registry and Artifact Gate
-
 Status: Done
 
 ### Goal 7: Artifact Collection Flow
-
 Status: Done
 
 ### Goal 8: Senior Review Gate Skeleton
-
 Status: Done
 
 ### Goal 9: Safety Gate Integration
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/runtime/safety_flow.py
-scripts/selfdev/write_safety_decision.py
-tests/selfdev/test_safety_flow.py
-```
 
 ### Goal 10: Verification Report Flow
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/runtime/verification_flow.py
-scripts/selfdev/write_verification_report.py
-tests/selfdev/test_verification_flow.py
-```
 
 ### Goal 11: Runner Request Flow
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/runtime/runner_flow.py
-scripts/selfdev/write_runner_report.py
-tests/selfdev/test_runner_flow.py
-```
 
 ### Goal 12: Commit Readiness Flow
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/runtime/commit_readiness_flow.py
-scripts/selfdev/evaluate_commit_readiness.py
-tests/selfdev/test_commit_readiness_flow.py
-```
 
 ### Goal 13: Full Dry Run
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/runtime/full_dry_run.py
-scripts/selfdev/run_full_dry_run.py
-tests/selfdev/test_full_dry_run.py
-```
 
 ### Goal 14: Read-only API Service Layer
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/api/read_api.py
-scripts/selfdev/read_api.py
-tests/selfdev/test_read_api.py
-```
 
 ### Goal 15: Local HTTP API Skeleton
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/api/http_server.py
-scripts/selfdev/serve_read_api.py
-tests/selfdev/test_http_read_api.py
-```
 
 ### Goal 16: API Action Availability Model
-
 Status: Done
-
-Outputs:
-
-```text
-selfdev/api/action_availability.py
-scripts/selfdev/show_actions.py
-tests/selfdev/test_action_availability.py
-```
 
 ### Goal 17: Expose Action Availability in HTTP API
-
 Status: Done
 
-Output:
-
-```text
-GET /actions/{task_id}
-```
-
-## Next Short-Term Goals
-
 ### Goal 18: Minimal UI Static Console
-
-Status: Next
-
-Required outputs:
+Status: Done
+Outputs:
 
 ```text
 selfdev/ui/web/index.html
@@ -176,75 +83,135 @@ selfdev/ui/web/styles.css
 tests/selfdev/test_ui_static_files.py
 ```
 
-Expected behavior:
-
-```text
-static console can call read-only HTTP API
-shows health
-shows summary
-shows task list
-shows action availability
-no mutation
-no shell
-no patch apply
-no commit
-```
-
 ### Goal 19: UI static file server route
-
-Status: Pending
-
-Expected output:
+Status: Done
+Outputs:
 
 ```text
-GET /
+GET /ui
+GET /ui/index.html
 GET /ui/app.js
 GET /ui/styles.css
 ```
 
 ### Goal 20: Read-only target registry API
-
-Status: Pending
-
-Expected output:
+Status: Done
+Outputs:
 
 ```text
 GET /targets
 GET /targets/{target_id}
+python scripts/selfdev/read_api.py targets
+python scripts/selfdev/read_api.py target --target-id <target_id>
 ```
 
 ### Goal 21: Artifact viewer read API
-
-Status: Pending
-
-Expected output:
+Status: Done
+Outputs:
 
 ```text
-GET /artifact/{artifact_id}
+GET /artifacts/{artifact_id}
+python scripts/selfdev/read_api.py artifact --artifact-id <artifact_id>
 ```
-
-Must include path safety check and redaction placeholder.
 
 ### Goal 22: Redaction service skeleton
-
-Status: Pending
-
-Expected output:
+Status: Done
+Outputs:
 
 ```text
-selfdev/api/redaction.py
+selfdev/runtime/redaction.py
+scripts/selfdev/redact_text.py
+tests/selfdev/test_redaction_service_skeleton.py
 ```
 
-### Goal 23: UI artifact browser
+### Goal 23: Redacted artifact preview helper
+Status: Done
+Outputs:
 
-Status: Pending
+```text
+selfdev/runtime/artifact_preview.py
+scripts/selfdev/preview_artifact.py
+tests/selfdev/test_redacted_artifact_preview.py
+```
 
+### Goal 24: Expose redacted artifact preview through read API
+Status: Done
+Outputs:
+
+```text
+GET /artifact-previews/{artifact_id}
+python scripts/selfdev/read_api.py artifact-preview --artifact-id <artifact_id>
+```
+
+### Goal 25: Add artifact preview panel to static UI
+Status: Done
+Outputs:
+
+```text
+selfdev/ui/web/index.html
+selfdev/ui/web/app.js
+selfdev/ui/web/styles.css
+tests/selfdev/test_ui_artifact_preview_panel.py
+```
+
+### Goal 26: Fix static UI root asset paths
+Status: Done
+Outputs:
+
+```text
+/ui loads /ui/styles.css
+/ui loads /ui/app.js
+tests/selfdev/test_ui_root_asset_paths.py
+```
+
+## Next Short-Term Goals
+
+### Goal 27: Documentation Milestone 03
+Status: Current
 Expected output:
 
 ```text
-artifact list
-artifact detail read-only view
-redacted preview
+README.md
+CHANGELOG.md
+docs/IMPLEMENTATION_STATUS.md
+docs/DEV_PLAN_SHORT_TERM.md
+docs/SPECIFICATION.md
+docs/TEST_PLAN.md
+docs/MILESTONE_03_SUMMARY.md
+tests/selfdev/test_milestone_03_docs.py
+```
+
+### Goal 28: Static UI polish and read-only operator usability
+Status: Next
+Expected behavior:
+
+```text
+improve layout and typography
+make status cards easier to scan
+keep zero build step
+keep framework-free static files
+keep read-only API calls only
+keep no mutation controls
+```
+
+### Goal 29: UI artifact list to preview integration
+Status: Pending
+Expected behavior:
+
+```text
+select artifact from artifact list
+load redacted preview without manual ID copying
+keep preview bounded and redacted
+```
+
+### Goal 30: UI target detail panel
+Status: Pending
+Expected behavior:
+
+```text
+list targets
+select one target
+show read-only target details
 ```
 
 ## Do Not Implement Yet
@@ -261,4 +228,5 @@ deployment
 desktop wrapper
 real scanner execution
 write API actions
+UI mutation controls
 ```

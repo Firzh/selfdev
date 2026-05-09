@@ -2,23 +2,11 @@
 
 ## 1. System Identity
 
-SelfDev is a standalone local multi-agent self-development system.
-
-It coordinates agents, tools, reviews, artifacts, and gates to support safe local development.
-
-SelfDev can manage many target systems. `ai-rag-local` is only the first expected managed target.
+SelfDev is a standalone local multi-agent self-development system. It coordinates agents, tools, reviews, artifacts, and gates to support safe local development. SelfDev can manage many target systems. `ai-rag-local` is only the first expected managed target.
 
 ## 2. Current Implementation Scope
 
-The current implementation is deterministic and file-based.
-
-No LLM integration is active.
-
-No agent execution is active.
-
-No shell execution is active.
-
-No mutation API is active.
+The current implementation is deterministic and file-based. No LLM integration is active. No agent execution is active. No shell execution is active. No mutation API is active.
 
 ## 3. Current Core Modules
 
@@ -38,14 +26,17 @@ No mutation API is active.
 | `selfdev.runtime.runner_flow` | Write Runner report without execution |
 | `selfdev.runtime.commit_readiness_flow` | Write Commit Gate readiness report |
 | `selfdev.runtime.full_dry_run` | Run deterministic full dry run |
+| `selfdev.runtime.redaction` | Deterministic secret redaction skeleton |
+| `selfdev.runtime.artifact_preview` | Bounded redacted artifact preview helper |
 | `selfdev.tools.safety_gate` | Check denied actions and denied paths |
 | `selfdev.tools.verification_engine` | Run minimal deterministic verification |
 | `selfdev.tools.runner` | Validate Runner requests only |
 | `selfdev.tools.commit_gate` | Evaluate commit readiness only |
 | `selfdev.tools.artifact_gate` | Validate artifact records |
 | `selfdev.api.read_api` | Framework-free read-only API service |
-| `selfdev.api.http_server` | Standard-library read-only HTTP API |
+| `selfdev.api.http_server` | Standard-library read-only HTTP API and static UI route |
 | `selfdev.api.action_availability` | Read-only action availability model |
+| `selfdev/ui/web` | Static local operator console |
 
 ## 4. Manifest Contract
 
@@ -84,9 +75,7 @@ critical
 
 ## 5. Routing Contract
 
-Routing is deterministic.
-
-The source of truth is:
+Routing is deterministic. The source of truth is:
 
 ```text
 config/selfdev/routing_rules.yaml
@@ -214,9 +203,7 @@ data/agent_workspace/verification/{task_id}.verification_report.md
 
 ## 10. Runner Contract
 
-Runner Request Flow currently validates the requested action only.
-
-It does not run commands.
+Runner Request Flow currently validates the requested action only. It does not run commands.
 
 Accepted status:
 
@@ -238,9 +225,7 @@ data/agent_workspace/runner/{task_id}.runner_report.md
 
 ## 11. Commit Readiness Contract
 
-Commit Gate currently evaluates readiness only.
-
-It does not run `git commit`.
+Commit Gate currently evaluates readiness only. It does not run `git commit`.
 
 Required artifacts:
 
@@ -286,8 +271,16 @@ GET /agents
 GET /tools
 GET /kanban
 GET /artifacts
+GET /artifacts/{artifact_id}
+GET /artifact-previews/{artifact_id}
 GET /state/{task_id}
 GET /actions/{task_id}
+GET /targets
+GET /targets/{target_id}
+GET /ui
+GET /ui/index.html
+GET /ui/app.js
+GET /ui/styles.css
 ```
 
 The HTTP API rejects:
@@ -298,11 +291,11 @@ PUT
 DELETE
 ```
 
+Resource identifiers in path segments must be single-segment IDs. Traversal and encoded traversal paths must be rejected.
+
 ## 13. Action Availability Contract
 
-Action availability is read-only.
-
-It returns:
+Action availability is read-only. It returns:
 
 ```json
 {
@@ -317,8 +310,31 @@ It returns:
 
 The UI must use this model instead of inferring action authority client-side.
 
-## 14. Current Limitation
+## 14. Redaction Contract
 
-The system is not yet an autonomous developer.
+Redaction is deterministic and local. It must mask common secret patterns before preview output reaches operators or UI panels.
 
-It is currently a deterministic local workflow skeleton with read-only API support.
+Current redaction targets include:
+
+```text
+environment-style secret assignments
+bearer tokens
+GitHub tokens
+generic secret keys
+```
+
+Artifact previews must be bounded by `max_chars` and must not leak the original secret value.
+
+## 15. Static UI Contract
+
+The static UI is served from:
+
+```text
+selfdev/ui/web
+```
+
+The UI may call read-only endpoints only. It must not expose controls for shell execution, patch application, commit, push, merge, deploy, release, environment modification, or secret reading.
+
+## 16. Current Limitation
+
+The system is not yet an autonomous developer. It is currently a deterministic local workflow skeleton with read-only API and static UI support.

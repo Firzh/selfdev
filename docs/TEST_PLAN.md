@@ -2,9 +2,7 @@
 
 ## Purpose
 
-This test plan defines the current SelfDev testing scope.
-
-The test suite verifies contract consistency, config integrity, runtime skeleton behavior, manifest validation, routing, dispatch, artifact handling, review gates, dry run flow, and read-only API behavior.
+This test plan defines the current SelfDev testing scope. The test suite verifies contract consistency, config integrity, runtime skeleton behavior, manifest validation, routing, dispatch, artifact handling, review gates, dry run flow, read-only API behavior, static UI behavior, and redacted artifact preview behavior.
 
 ## Test Command
 
@@ -146,8 +144,7 @@ no git commit is executed
 Checks:
 
 ```text
-manifest
-dispatch
+manifest dispatch
 mock artifact reply
 artifact collection
 senior review
@@ -168,7 +165,12 @@ agents
 tools
 kanban
 artifacts
+artifact detail
+artifact preview
+targets
+target detail
 state
+action availability
 ```
 
 ### Read-only HTTP API
@@ -179,11 +181,24 @@ Checks:
 GET /health
 GET /agents
 GET /kanban
+GET /artifacts
+GET /artifacts/{artifact_id}
+GET /artifact-previews/{artifact_id}
 GET /state/{task_id}
 GET /actions/{task_id}
+GET /targets
+GET /targets/{target_id}
+GET /ui
+GET /ui/index.html
+GET /ui/app.js
+GET /ui/styles.css
 404 handling
 405 for POST
 invalid task_id rejection
+invalid target_id rejection
+invalid artifact_id rejection
+static path traversal rejection
+stable JavaScript content type
 ```
 
 ### API Action Availability Model
@@ -199,16 +214,56 @@ commit_ready
 human_required
 ```
 
+### Static UI
+
+Checks:
+
+```text
+index.html exists
+app.js exists
+styles.css exists
+UI references read-only endpoints
+UI does not contain mutation methods
+UI does not expose shell, patch, commit, push, merge, deploy, or release actions
+/ui loads assets from /ui paths
+artifact preview panel is present
+```
+
+### Redaction and Artifact Preview
+
+Checks:
+
+```text
+secret-like values are redacted
+preview output is bounded
+original secret values are not returned
+unsafe artifact paths are blocked
+missing artifacts return safe payloads
+binary or non-UTF-8 content is not inlined
+redaction markers remain visible in bounded previews
+```
+
+### Documentation Milestone 03
+
+Checks:
+
+```text
+required documentation files mention Documentation Milestone 03
+current read-only endpoints are documented
+new static UI and redaction capabilities are documented
+unsafe automation remains documented as not implemented
+```
+
 ## Current Expected Result
 
 All tests should pass before continuing.
 
-Operator reported current state:
+Operator-reported expected state for this documentation milestone:
 
 ```text
 Tests green
-Commit completed
-Local commit count: 22
+Implementation cycle after Documentation Milestone 02 completed
+Documentation update required before next feature patch
 ```
 
 ## Required Test Rule
@@ -223,13 +278,12 @@ Do not commit if tests are red.
 
 ## Next Test Scope
 
-For the next phase, add tests for minimal UI static console:
+For the next phase, add tests for static UI polish and read-only operator usability:
 
 ```text
-index.html exists
-app.js exists
-styles.css exists
-UI contains expected API endpoint references
-UI does not contain mutation methods
-UI does not expose shell, patch, commit, push, merge, deploy actions
+UI keeps read-only endpoint usage
+UI remains framework-free
+UI layout has stable named sections
+UI does not introduce mutation controls
+UI remains usable from /ui without a build step
 ```

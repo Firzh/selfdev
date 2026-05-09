@@ -49,6 +49,15 @@ All notable changes to SelfDev are documented here.
 - Added API Action Availability Model.
 - Added action availability CLI.
 - Added `/actions/{task_id}` endpoint to read-only HTTP API.
+- Added minimal static operator console under `selfdev/ui/web/`.
+- Added static UI serving through `GET /ui`, `GET /ui/index.html`, `GET /ui/app.js`, and `GET /ui/styles.css`.
+- Added target registry read API through `GET /targets`, `GET /targets/{target_id}`, and matching CLI commands.
+- Added artifact viewer read API through `GET /artifacts/{artifact_id}` and matching CLI command.
+- Added deterministic redaction service skeleton and `scripts/selfdev/redact_text.py`.
+- Added redacted artifact preview helper and `scripts/selfdev/preview_artifact.py`.
+- Added redacted artifact preview read API through `GET /artifact-previews/{artifact_id}` and matching CLI command.
+- Added redacted artifact preview panel to the static UI.
+- Added absolute UI asset paths so `/ui` loads `styles.css` and `app.js` reliably.
 
 ### Changed
 
@@ -59,6 +68,7 @@ All notable changes to SelfDev are documented here.
 - Clarified that Runner remains a validator in the current phase.
 - Clarified that Commit Gate evaluates readiness only and does not execute `git commit`.
 - Expanded read-only API capabilities for future UI integration.
+- Expanded the static UI from a basic read-only console to include target registry and redacted artifact preview surfaces.
 
 ### Security
 
@@ -69,9 +79,14 @@ All notable changes to SelfDev are documented here.
 - Added human gate requirement for high-risk task types.
 - Added HTTP rejection for POST, PUT, and DELETE in read-only API.
 - Added task ID single-segment validation for `/state/{task_id}` and `/actions/{task_id}`.
+- Added target ID and artifact ID single-segment validation for read API paths.
 - Added action availability model so UI does not infer authority client-side.
+- Added deterministic secret redaction for environment-style secrets, bearer tokens, GitHub tokens, and generic secret keys.
+- Added bounded redacted artifact previews so sensitive content is masked before operator display.
+- Kept UI read-only: no shell, patch, commit, push, merge, deploy, release, or mutation controls.
 
 ### Tests
 
-- Contract tests are green at Documentation Milestone 02.
-- Current local commit count reported by operator: 22.
+- Contract tests are green at Documentation Milestone 03.
+- Documentation Milestone 03 records the implementation cycle after Documentation Milestone 02.
+- The cycle completed the static UI console, UI static serving, target registry read API, artifact viewer read API, redaction skeleton, redacted artifact preview helper, redacted preview API, artifact preview UI panel, and UI root asset path fix.

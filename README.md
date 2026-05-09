@@ -29,6 +29,14 @@ The system currently supports:
 - read-only local HTTP API
 - API action availability model
 - `/actions/{task_id}` HTTP endpoint
+- minimal static local operator console
+- static UI serving under `/ui`
+- target registry read API
+- artifact viewer read API
+- deterministic redaction service skeleton
+- redacted artifact preview helper
+- redacted artifact preview read API
+- artifact preview panel in the static UI
 
 No LLM execution is active yet.
 
@@ -62,6 +70,9 @@ Agents may fail. LLM output may be wrong. Tools may fail. Artifacts may be incom
 | Verification Engine | Deterministic validation layer | Report writer for required files |
 | Safety Gate | Hard policy boundary | Denied action and path checker |
 | Commit Gate | Commit readiness evaluator | Does not run git commit |
+| Read API | Local read surface | Framework-free, read-only |
+| Static UI | Local operator console | Static files only, read-only |
+| Redaction Service | Secret masking | Deterministic skeleton |
 
 ## Current Safe Flow
 
@@ -91,6 +102,8 @@ Verification Report Flow
 Runner Request Flow
   ↓
 Commit Readiness Flow
+  ↓
+Read-only API + Static UI observation
 ```
 
 ## Full Dry Run
@@ -110,6 +123,11 @@ python scripts/selfdev/run_contract_tests.py
 ```bash
 python scripts/selfdev/read_api.py health
 python scripts/selfdev/read_api.py summary
+python scripts/selfdev/read_api.py targets
+python scripts/selfdev/read_api.py target --target-id selfdev
+python scripts/selfdev/read_api.py artifacts
+python scripts/selfdev/read_api.py artifact --artifact-id <artifact_id>
+python scripts/selfdev/read_api.py artifact-preview --artifact-id <artifact_id>
 python scripts/selfdev/show_actions.py --task-id <task_id>
 ```
 
@@ -136,8 +154,22 @@ GET /agents
 GET /tools
 GET /kanban
 GET /artifacts
+GET /artifacts/{artifact_id}
+GET /artifact-previews/{artifact_id}
 GET /state/{task_id}
 GET /actions/{task_id}
+GET /targets
+GET /targets/{target_id}
+GET /ui
+GET /ui/index.html
+GET /ui/app.js
+GET /ui/styles.css
+```
+
+Open the local operator console after starting the server:
+
+```text
+http://127.0.0.1:8765/ui
 ```
 
 ## Development Rule
