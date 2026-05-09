@@ -39,6 +39,11 @@
         <div id="summary-grid" class="summary-grid"></div>
       </section>
 
+      <section class="panel" aria-labelledby="targets-title">
+        <h2 id="targets-title">Target registry</h2>
+        <div id="target-list" class="target-list muted">Waiting for target registry...</div>
+      </section>
+
       <section class="panel" aria-labelledby="kanban-title">
         <h2 id="kanban-title">Kanban tasks</h2>
         <div id="task-list" class="task-list"></div>
@@ -55,6 +60,27 @@
         <div id="action-card" class="action-card muted">
           Select a task to inspect backend-approved action availability.
         </div>
+      </section>
+
+      <section class="panel artifact-preview-panel" aria-labelledby="artifact-preview-title">
+        <div class="panel-heading">
+          <div>
+            <h2 id="artifact-preview-title">Redacted artifact preview</h2>
+            <p class="panel-note">
+              Preview content is bounded and must be redacted by the read-only API before display.
+            </p>
+          </div>
+          <label class="artifact-input-label">
+            Artifact ID
+            <input id="artifact-id-input" type="text" placeholder="task-demo.opung.draft_patch" />
+          </label>
+        </div>
+        <div class="artifact-preview-actions">
+          <button id="artifact-preview-button" type="button">Load redacted preview</button>
+          <span id="artifact-preview-status" class="inline-status muted">No artifact selected.</span>
+        </div>
+        <pre id="artifact-preview-content" class="artifact-preview-content" aria-live="polite">Select an artifact to preview redacted text safely.</pre>
+        <dl id="artifact-preview-meta" class="artifact-preview-meta"></dl>
       </section>
 
       <section class="panel" aria-labelledby="endpoints-title">
