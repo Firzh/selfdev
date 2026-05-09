@@ -7,88 +7,104 @@
     <link rel="stylesheet" href="/ui/styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">SelfDev local console</p>
-        <h1>Operator Console</h1>
-      </div>
-      <span class="mode-badge" data-testid="read-only-mode">READ ONLY</span>
-    </header>
-
-    <main class="layout">
-      <section class="panel boundary-panel" aria-labelledby="boundary-title">
-        <h2 id="boundary-title">Failure-first boundary</h2>
-        <p>
-          This console only reads the local SelfDev API. It does not execute shell,
-          apply patches, commit, push, merge, deploy, release, modify environment
-          files, or read secrets.
-        </p>
-        <ul id="boundary-list"></ul>
-      </section>
-
-      <section class="panel" aria-labelledby="health-title">
-        <div class="panel-heading">
-          <h2 id="health-title">Health</h2>
-          <button id="refresh-button" type="button">Refresh read-only data</button>
+    <div class="selfdev-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">SelfDev local console</p>
+          <h1>SelfDev Operator Console</h1>
+          <p class="lede">Read-only observation surface for deterministic development flows.</p>
         </div>
-        <div id="health-card" class="status-card muted">Waiting for API...</div>
-      </section>
-
-      <section class="panel" aria-labelledby="summary-title">
-        <h2 id="summary-title">Summary</h2>
-        <div id="summary-grid" class="summary-grid"></div>
-      </section>
-
-      <section class="panel" aria-labelledby="targets-title">
-        <h2 id="targets-title">Target registry</h2>
-        <div id="target-list" class="target-list muted">Waiting for target registry...</div>
-      </section>
-
-      <section class="panel" aria-labelledby="kanban-title">
-        <h2 id="kanban-title">Kanban tasks</h2>
-        <div id="task-list" class="task-list"></div>
-      </section>
-
-      <section class="panel" aria-labelledby="actions-title">
-        <div class="panel-heading">
-          <h2 id="actions-title">Action availability</h2>
-          <label class="task-input-label">
-            Task ID
-            <input id="task-id-input" type="text" placeholder="task-docs-001" />
-          </label>
+        <div class="topbar-actions" aria-label="Console state">
+          <span class="mode-badge">READ ONLY</span>
+          <button id="refreshButton" class="secondary-button" type="button">Refresh read-only data</button>
         </div>
-        <div id="action-card" class="action-card muted">
-          Select a task to inspect backend-approved action availability.
-        </div>
-      </section>
+      </header>
 
-      <section class="panel artifact-preview-panel" aria-labelledby="artifact-preview-title">
-        <div class="panel-heading">
-          <div>
-            <h2 id="artifact-preview-title">Redacted artifact preview</h2>
-            <p class="panel-note">
-              Preview content is bounded and must be redacted by the read-only API before display.
-            </p>
+      <main class="layout">
+        <section class="panel boundary-panel" aria-labelledby="boundary-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Failure-first boundary</p>
+            <h2 id="boundary-title">Safety boundary</h2>
           </div>
-          <label class="artifact-input-label">
-            Artifact ID
-            <input id="artifact-id-input" type="text" placeholder="task-demo.opung.draft_patch" />
-          </label>
-        </div>
-        <div class="artifact-preview-actions">
-          <button id="artifact-preview-button" type="button">Load redacted preview</button>
-          <span id="artifact-preview-status" class="inline-status muted">No artifact selected.</span>
-        </div>
-        <pre id="artifact-preview-content" class="artifact-preview-content" aria-live="polite">Select an artifact to preview redacted text safely.</pre>
-        <dl id="artifact-preview-meta" class="artifact-preview-meta"></dl>
-      </section>
+          <p>
+            This console only reads the local SelfDev API. It does not execute shell, apply patches,
+            commit, push, merge, deploy, release, modify environment files, or read secrets.
+          </p>
+          <div id="safetyBoundary" class="boundary-grid" aria-live="polite"></div>
+        </section>
 
-      <section class="panel" aria-labelledby="endpoints-title">
-        <h2 id="endpoints-title">Read-only endpoints used</h2>
-        <ul id="endpoint-list" class="endpoint-list"></ul>
-      </section>
-    </main>
+        <section class="panel status-card" aria-labelledby="health-title">
+          <div class="panel-heading inline-heading">
+            <div>
+              <p class="eyebrow">System</p>
+              <h2 id="health-title">Health</h2>
+            </div>
+            <span id="healthBadge" class="state-pill muted">Waiting</span>
+          </div>
+          <pre id="healthOutput" class="code-block">Waiting for API...</pre>
+        </section>
 
+        <section class="panel status-card" aria-labelledby="summary-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Overview</p>
+            <h2 id="summary-title">Summary</h2>
+          </div>
+          <pre id="summaryOutput" class="code-block compact"></pre>
+        </section>
+
+        <section class="panel status-card" aria-labelledby="target-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Scope</p>
+            <h2 id="target-title">Target registry</h2>
+          </div>
+          <div id="targetList" class="card-list">Waiting for target registry...</div>
+        </section>
+
+        <section class="panel" aria-labelledby="kanban-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Workflow</p>
+            <h2 id="kanban-title">Kanban tasks</h2>
+          </div>
+          <div id="kanbanList" class="card-list">Waiting for kanban tasks...</div>
+        </section>
+
+        <section class="panel" aria-labelledby="actions-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Gate</p>
+            <h2 id="actions-title">Action availability</h2>
+          </div>
+          <label class="field-label" for="taskIdInput">Task ID</label>
+          <div class="input-row">
+            <input id="taskIdInput" type="text" value="task-docs-001" autocomplete="off" />
+            <button id="loadActionsButton" class="secondary-button" type="button">Inspect</button>
+          </div>
+          <div id="actionOutput" class="action-card muted-card">Select a task to inspect backend-approved action availability.</div>
+        </section>
+
+        <section class="panel" aria-labelledby="artifacts-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Artifacts</p>
+            <h2 id="artifacts-title">Artifact browser</h2>
+          </div>
+          <div id="artifactList" class="card-list">Waiting for artifact index...</div>
+        </section>
+
+        <section class="panel preview-panel" aria-labelledby="preview-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Redacted artifact preview</p>
+            <h2 id="preview-title">Redacted artifact preview</h2>
+            <p class="panel-note">Preview content is bounded and redacted by the read-only API before display.</p>
+          </div>
+          <label class="field-label" for="artifactIdInput">Artifact ID</label>
+          <div class="input-row">
+            <input id="artifactIdInput" data-compat-id="artifact-id-input" type="text" placeholder="task-demo.opung.draft_patch" autocomplete="off" />
+            <button id="loadPreviewButton" data-compat-id="artifact-preview-button" class="secondary-button" type="button">Load redacted preview</button>
+          </div>
+          <div id="previewMeta" class="preview-meta muted-card">No artifact selected.</div>
+          <pre id="previewContent" data-compat-id="artifact-preview-content" class="code-block preview-block">Preview content will appear here.</pre>
+        </section>
+      </main>
+    </div>
     <script src="/ui/app.js" defer></script>
   </body>
 </html>
