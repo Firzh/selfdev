@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+"""Redact text using SelfDev deterministic redaction policy."""
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -12,15 +14,26 @@ if str(ROOT) not in sys.path:
 from selfdev.runtime.redaction import redact_text
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Redact sensitive values from provided text without reading or writing files."
-    )
-    parser.add_argument("--text", required=True, help="Text to redact.")
-    args = parser.parse_args()
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Redact sensitive text deterministically.")
+    parser.add_argument("--text", default="", help="Text to redact")
+    parser.add_argument("--json", action="store_true", help="Emit structured JSON output")
+    return parser
 
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
     result = redact_text(args.text)
-    print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
+    payload = {
+        "text": result.text,
+        "redacted_text": result.redacted_text,
+        "redacted": result.redacted,
+        "redaction_count": result.redaction_count,
+        "findings": [finding.to_dict() for finding in result.findings],
+        "redactions": list(result.redactions),
+        "matches": [finding.to_dict() for finding in result.matches],
+    }
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
