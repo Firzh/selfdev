@@ -92,27 +92,11 @@ All notable changes to SelfDev are documented here.
 - The cycle completed the static UI console, UI static serving, target registry read API, artifact viewer read API, redaction skeleton, redacted artifact preview helper, redacted preview API, artifact preview UI panel, and UI root asset path fix.
 
 <!-- SELFDEV:MILESTONE_04_START -->
-## Documentation Milestone 04 - Read-only operator surface stabilized
+## Documentation Milestone 04
 
-Date: 2026-05-11
-
-### Added
-
-- Documented the completed static operator UI polish cycle.
-- Documented artifact browser to redacted preview integration.
-- Documented target detail panel read-only observation flow.
-- Documented the read API payload consistency contract.
-- Documented Redaction policy coverage expansion for deterministic secret masking.
-- Added Milestone 04 summary documentation.
-
-### Changed
-
-- Refreshed implementation status, short-term development plan, specification,
-  and test plan around the current read-only operator and API contracts.
-
-### Safety
-
-- SelfDev remains deterministic and read-only at the operator/API boundary.
-- No LLM execution, command execution, patch application, VCS write, push, merge,
-  deploy, or release automation is active.
+- Synchronized documentation status after the Documentation Milestone 03 follow-up work.
+- Documented the static read-only operator UI polish, artifact browser integration, and target detail panel.
+- Documented the Read API payload contract using `selfdev.read_api.payload.v1`.
+- Documented the Redaction policy coverage expansion and the structured `RedactionResult` compatibility contract.
+- Clarified that Milestone 04 is a capability and documentation snapshot, not a hard-coded feature-commit counts claim.
 <!-- SELFDEV:MILESTONE_04_END -->

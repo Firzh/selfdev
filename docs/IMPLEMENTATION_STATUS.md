@@ -1,192 +1,47 @@
-# Implementation Status
+# SelfDev Implementation Status
 
-**Milestone:** Documentation Milestone 03
-**Status:** Active deterministic development
-**Last update reason:** The implementation cycle after Documentation Milestone 02 completed. Documentation must be updated before continuing feature development.
-
-## Summary
-
-SelfDev has reached the third deterministic documentation milestone. The project still uses a safe, file-based, contract-first architecture. The system can validate a manifest, route it, dispatch it, collect artifacts, perform senior review, run Safety Gate, produce verification report, validate Runner request, evaluate commit readiness, and expose read-only state through CLI, HTTP, and a static local operator console.
-
-No autonomous agent execution exists yet. No LLM integration exists yet. No patch application exists yet. No real git commit automation exists yet. No write API exists yet.
-
-## Implemented
-
-| Area | Status | Notes |
-|---|---|---|
-| Repository documentation baseline | Done | README, changelog, specification, implementation status, test plan |
-| Contract test runner | Done | `scripts/selfdev/run_contract_tests.py` |
-| Baseline config files | Done | `config/selfdev/*.yaml` |
-| Agent registry config | Done | `config/selfdev/agents.yaml` |
-| Tool registry config | Done | `config/selfdev/tools.yaml` |
-| Routing rules config | Done | `config/selfdev/routing_rules.yaml` |
-| Workflow config | Done | `config/selfdev/workflow.yaml` |
-| Target registry config | Done | `config/selfdev/targets.yaml` |
-| Safety policy config | Done | `config/selfdev/safety_policy.yaml` |
-| Runtime state manager | Done | File-based JSON state |
-| Message bus | Done | File-based inbox/outbox JSON |
-| Kanban board | Done | File-based JSON board |
-| Safety Gate skeleton | Done | Denied action and path checks |
-| Verification Engine skeleton | Done | Required file checks |
-| Runner skeleton | Done | Request validation only |
-| Commit Gate skeleton | Done | Readiness evaluation only |
-| Manifest schema | Done | JSON schema file |
-| Manifest validator | Done | YAML contract validation |
-| Manifest validation CLI | Done | `scripts/selfdev/validate_manifest.py` |
-| Routing Gate | Done | Deterministic task_type routing |
-| Routing CLI | Done | `scripts/selfdev/route_manifest.py` |
-| Dispatcher | Done | Manifest to Kanban, State, Message Bus |
-| Dispatch CLI | Done | `scripts/selfdev/dispatch_manifest.py` |
-| Artifact registry | Done | File-based artifact index |
-| Artifact Gate | Done | Existence, non-empty, type, path checks |
-| Artifact registration CLI | Done | `scripts/selfdev/register_artifact.py` |
-| Artifact collection flow | Done | `artifact_ready` reply collection |
-| Senior Review Gate skeleton | Done | Writes senior review and updates state |
-| Safety Gate Integration | Done | Writes safety report and registers artifact |
-| Verification Report Flow | Done | Writes verification report and registers artifact |
-| Runner Request Flow | Done | Writes runner report, no execution |
-| Commit Readiness Flow | Done | Writes commit request report, no commit |
-| Full Deterministic Dry Run | Done | End-to-end safe dry run |
-| Read-only API service layer | Done | Framework-free service layer |
-| Read-only API CLI | Done | `scripts/selfdev/read_api.py` |
-| Local HTTP API skeleton | Done | Python standard library HTTP server |
-| HTTP server CLI | Done | `scripts/selfdev/serve_read_api.py` |
-| Action Availability Model | Done | Read-only action gating model |
-| Action Availability CLI | Done | `scripts/selfdev/show_actions.py` |
-| `/actions/{task_id}` HTTP endpoint | Done | Read-only UI support endpoint |
-| Minimal UI Static Console | Done | Static read-only console under `selfdev/ui/web/` |
-| UI static file server route | Done | `GET /ui`, `GET /ui/index.html`, `GET /ui/app.js`, `GET /ui/styles.css` |
-| Target registry read API | Done | `GET /targets`, `GET /targets/{target_id}` |
-| Artifact viewer read API | Done | `GET /artifacts/{artifact_id}` |
-| Redaction service skeleton | Done | Deterministic masking for common secret patterns |
-| Redacted artifact preview helper | Done | Bounded redacted text preview helper |
-| Redacted artifact preview read API | Done | `GET /artifact-previews/{artifact_id}` |
-| Static UI artifact preview panel | Done | Read-only preview input and output panel |
-| UI root asset path fix | Done | `/ui` reliably loads static assets |
-
-## Not Yet Implemented
-
-| Area | Status | Notes |
-|---|---|---|
-| LLM agent invocation | Not started | No Ollama call yet |
-| Siwa real orchestration loop | Not started | Current flow is deterministic scripts |
-| Opung draft patch generation | Not started | No coding agent execution yet |
-| Adit documentation generation | Not started | No documentation agent execution yet |
-| Asep security review generation | Not started | No security review generation yet |
-| Doni DevOps review generation | Not started | No DevOps review generation yet |
-| Supri runtime analysis generation | Not started | No sysadmin analysis generation yet |
-| Runner real command execution | Not started | Current Runner only validates request |
-| Patch apply check | Not started | Needed before Runner apply |
-| Safety report policy loading from YAML | Not complete | Current flow still relies on default safety constants in some paths |
-| Verification profiles | Not started | Current verification checks required files only |
-| Commit Gate real local commit | Not started | Current Commit Gate only evaluates readiness |
-| Write API actions | Not started | Read-only API only |
-| Desktop wrapper | Not started | Tauri/PWA/Electron later |
-| UI mutation controls | Not started | Must remain absent until explicit write-policy design exists |
-
-## Current Development Position
-
-```text
-Phase 0: Documentation baseline Done
-Phase 1: Contract baseline Done
-Phase 2: Runtime skeleton Done
-Phase 3: Manifest validator Done
-Phase 4: Routing gate Done
-Phase 5: Dispatch flow Done
-Phase 6: Artifact registry and gate Done
-Phase 7: Artifact collection flow Done
-Phase 8: Senior review gate Done
-Phase 9: Safety Gate integration Done
-Phase 10: Verification Report Flow Done
-Phase 11: Runner Request Flow Done
-Phase 12: Commit Readiness Flow Done
-Phase 13: Full Deterministic Dry Run Done
-Phase 14: Read-only API service layer Done
-Phase 15: Local HTTP API skeleton Done
-Phase 16: API Action Availability Model Done
-Phase 17: Expose Action Availability in HTTP API Done
-Phase 18: Minimal UI Static Console Done
-Phase 19: UI static file server route Done
-Phase 20: Target registry read API Done
-Phase 21: Artifact viewer read API Done
-Phase 22: Redaction service skeleton Done
-Phase 23: Redacted artifact preview helper Done
-Phase 24: Redacted artifact preview read API Done
-Phase 25: Static UI artifact preview panel Done
-Phase 26: UI root asset path fix Done
-Phase 27: Documentation Milestone 03 In progress
-```
-
-## Next Phase
-
-Next implementation phase:
-
-```text
-Static UI polish and read-only operator usability
-```
-
-Goal:
-
-```text
-Improve the static console layout, readability, and read-only navigation without introducing framework dependencies, mutation actions, shell execution, patch application, commit automation, or write API behavior.
-```
-
-<!-- SELFDEV:MILESTONE_04_START -->
 ## Documentation Milestone 04 Status
 
-### Completed Since Documentation Milestone 03
+Milestone: Documentation Milestone 04
+Last update reason: status documents synchronized after the Documentation Milestone 03 follow-up cycle.
 
-```text
-Static UI polish and read-only operator usability
-UI artifact list to preview integration
-UI target detail panel
-Read-only API payload consistency pass
-Redaction policy coverage expansion
-```
+SelfDev remains a deterministic, read-only development assistant skeleton. The project documents the current implementation state without treating the milestone as a fixed feature-commit count.
 
-### Current Safety Position
+## Current Safety Boundary
 
-SelfDev is still deterministic. The static UI and HTTP API are read-only. The
-system may observe local project state through deterministic readers, but it does
-not execute LLM calls, execute commands, apply patches, write VCS history, push,
-merge, deploy, or release.
+- No active LLM calls are performed by the local runtime.
+- No shell execution is exposed through the HTTP API or static UI.
+- No apply-patch automation is exposed.
+- No real git commit automation is exposed.
+- No push, merge, deploy, or release automation is exposed.
+- HTTP endpoints remain read-only; mutation verbs are rejected by boundary tests.
+- Static UI actions are operator-facing read views only.
 
-### Current Runtime Position
+## Completed Since Documentation Milestone 03
 
-```text
-manifest
-↓
-validate
-↓
-route
-↓
-dispatch
-↓
-collect artifact
-↓
-senior review
-↓
-safety
-↓
-verification
-↓
-runner request validation
-↓
-commit readiness evaluation
-↓
-read-only API observation
-↓
-static UI observation
-```
+- Static UI operator usability polish.
+- Artifact browser to redacted preview integration.
+- Target detail panel in the static UI.
+- Read API payload consistency pass using `selfdev.read_api.payload.v1`.
+- Deterministic redaction policy coverage expansion.
+- Compatibility repair for `RedactionResult`, `RedactionFinding`, CLI JSON output, and artifact preview consumers.
 
-### Stable Contracts
+## Stable Contracts
 
-```text
-selfdev.read_api.payload.v1 response envelopes
-bounded redacted artifact previews
-structured RedactionResult return values
-legacy-compatible redaction fields
-read-only static UI controls
-path-safe target and artifact IDs
-```
-<!-- SELFDEV:MILESTONE_04_END -->
+- `ReadApi` payloads use a normalized envelope with `data` and `meta`.
+- `meta.contract` is `selfdev.read_api.payload.v1`.
+- `meta.mode` is `read_only`.
+- `RedactionResult` exposes structured fields and legacy-compatible aliases.
+- `RedactionFinding` remains typed while redaction dictionaries remain sanitized.
+- Artifact previews are loaded from workspace artifacts, bounded by length, and redacted before display.
+
+## Documentation Consistency Notes
+
+`IMPLEMENTATION_STATUS.md`, `MILESTONE_04_SUMMARY.md`, `SPECIFICATION.md`, `TEST_PLAN.md`, `DEV_PLAN_SHORT_TERM.md`, `README.md`, and `CHANGELOG.md` should refer to the same milestone state. Historical references may remain in older changelog entries, but the current status section should point to Documentation Milestone 04.
+
+## Next Work Candidates
+
+- Add more regression fixtures for redaction edge cases and false positives.
+- Add UI snapshot checks for read-only state labels and empty-state rendering.
+- Add payload contract examples for all read-only API resources.
+- Document operator troubleshooting for local static UI and read API workflows.

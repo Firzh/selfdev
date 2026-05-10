@@ -291,26 +291,20 @@ UI remains usable from /ui without a build step
 <!-- SELFDEV:MILESTONE_04_START -->
 ## Documentation Milestone 04 Test Plan Addendum
 
-### Focused Contract Tests
+Documentation Milestone 04 is covered by `tests/selfdev/test_milestone_04_documentation.py`.
+
+Required checks:
+
+- Milestone 04 summary documents the completed follow-up work since Documentation Milestone 03.
+- `docs/IMPLEMENTATION_STATUS.md` points to Documentation Milestone 04 as the current status.
+- The Read API payload contract references `selfdev.read_api.payload.v1`.
+- The redaction contract references `RedactionResult`.
+- Milestone 04 docs avoid hard-coded feature-commit counts.
+
+Recommended command:
 
 ```bash
-python -m pytest tests/selfdev/test_ui_operator_polish*.py -q
-python -m pytest tests/selfdev/test_ui_artifact_list*.py -q
-python -m pytest tests/selfdev/test_ui_target_detail*.py -q
-python -m pytest tests/selfdev/test_read_api_payload_consistency.py -q
-python -m pytest tests/selfdev/test_redaction_*compat.py tests/selfdev/test_redaction_policy_coverage.py -q
-```
-
-### Integration Regression Tests
-
-```bash
-python -m pytest tests/selfdev/test_artifact_preview_read_api.py tests/selfdev/test_redacted_artifact_preview.py -q
-python -m pytest tests/selfdev/test_target_registry_read_api.py tests/selfdev/test_artifact_viewer_read_api.py -q
-```
-
-### Full Contract Suite
-
-```bash
+python -m pytest tests/selfdev/test_milestone_04_documentation.py -q
 python scripts/selfdev/run_contract_tests.py
 ```
 <!-- SELFDEV:MILESTONE_04_END -->

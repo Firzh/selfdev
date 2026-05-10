@@ -188,44 +188,15 @@ Required docs to update:
 <!-- SELFDEV:MILESTONE_04_START -->
 ## Documentation Milestone 04 Snapshot
 
-SelfDev remains in the deterministic contract-first implementation phase. The
-current operator-facing surface is read-only and now includes the stabilized
-static operator console, target detail panel, artifact browser to preview flow,
-read API payload envelope contract, and expanded deterministic redaction policy
-coverage.
+SelfDev is documented at **Documentation Milestone 04** as a deterministic, read-only development assistant skeleton. This snapshot synchronizes the status documents after the follow-up cycle that completed since Documentation Milestone 03. It is a capability snapshot, not a fixed feature-commit count.
 
-### Current Read-only Surface
+Stable contracts at this milestone:
 
-```text
-GET /health
-GET /summary
-GET /agents
-GET /tools
-GET /kanban
-GET /artifacts
-GET /artifacts/{artifact_id}
-GET /artifact-previews/{artifact_id}
-GET /state/{task_id}
-GET /actions/{task_id}
-GET /targets
-GET /targets/{target_id}
-GET /ui
-GET /ui/index.html
-GET /ui/app.js
-GET /ui/styles.css
-```
+- The HTTP API remains read-only; mutation verbs remain outside the supported boundary.
+- The static operator UI remains read-only and does not expose shell, patch, commit, push, merge, deploy, or release controls.
+- Read API responses use the `selfdev.read_api.payload.v1` envelope contract for normalized payload metadata.
+- Redaction returns a structured `RedactionResult` while preserving legacy-compatible fields used by artifact preview and CLI flows.
+- Artifact preview content remains bounded and redacted before being rendered in the UI or returned by the API.
 
-### Current Contract Guarantees
-
-```text
-static UI assets are served from /ui paths
-static UI exposes read-only operator observation only
-artifact previews are bounded and redacted
-target detail and artifact detail IDs are single path segments
-read API responses use selfdev.read_api.payload.v1 envelopes
-redaction returns structured RedactionResult objects with legacy compatibility
-no LLM execution is active
-no agent command execution is active
-no patch, VCS write, push, merge, deploy, or release automation is active
-```
+The next development cycle should extend coverage without relaxing the deterministic safety boundary.
 <!-- SELFDEV:MILESTONE_04_END -->

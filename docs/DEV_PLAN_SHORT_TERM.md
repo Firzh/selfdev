@@ -232,36 +232,21 @@ UI mutation controls
 ```
 
 <!-- SELFDEV:MILESTONE_04_START -->
-## Short-term Plan After Documentation Milestone 04
+# Short-term Plan After Documentation Milestone 04
 
-### Completed Work Now Captured
+The next cycle should build on the read-only contracts that are now documented in Milestone 04. Work should remain deterministic and should not introduce shell execution, write API methods, patch automation, commit automation, push, merge, deploy, or release controls.
 
-```text
-Static UI polish and read-only operator usability
-UI artifact list to preview integration
-UI target detail panel
-Read-only API payload consistency pass
-Redaction policy coverage expansion
-```
+## Next Work Candidates
 
-### Next Work Candidates
+1. **Redaction regression fixtures**  
+   Add small deterministic examples for environment secrets, token-like strings, URL credentials, email addresses, and user paths.
 
-```text
-Read API envelope parity for every endpoint and CLI command
-Static UI empty, loading, and error state polish
-Operator troubleshooting and smoke-check documentation
-Artifact preview metadata and redaction finding presentation polish
-Target and artifact filtering for read-only operator navigation
-```
+2. **Read API payload examples**  
+   Add documented examples for resources that return the `selfdev.read_api.payload.v1` envelope.
 
-### Guardrails For Next Work
+3. **Static UI read-only snapshots**  
+   Add snapshot-style checks for read-only labels, artifact preview empty states, and target detail rendering.
 
-```text
-Keep HTTP API read-only
-Reject POST, PUT, and DELETE
-Do not expose mutation controls in static UI
-Keep artifact previews bounded and redacted
-Keep RedactionResult backward compatible
-Keep all additions deterministic and contract-tested
-```
+4. **Operator troubleshooting notes**  
+   Document common local setup checks for the HTTP server, static UI assets, and CLI helper scripts.
 <!-- SELFDEV:MILESTONE_04_END -->

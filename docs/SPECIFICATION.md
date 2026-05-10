@@ -340,38 +340,40 @@ The UI may call read-only endpoints only. It must not expose controls for shell 
 The system is not yet an autonomous developer. It is currently a deterministic local workflow skeleton with read-only API and static UI support.
 
 <!-- SELFDEV:MILESTONE_04_START -->
-## Documentation Milestone 04 Specification Notes
+## Read API Payload Contract
 
-### Read API Payload Contract
+Read API responses should use the `selfdev.read_api.payload.v1` envelope when a normalized payload is returned.
 
-Read API responses use the `selfdev.read_api.payload.v1` envelope. A normalized
-payload contains `data` and `meta`. The `meta` block identifies the contract,
-resource, mode, status, existence marker, error marker, and warnings.
+Expected top-level shape:
 
-### Redaction Contract
-
-Redaction is deterministic and regex-based. `redact_text(text)` returns a
-`RedactionResult` object. The object exposes:
-
-```text
-text
-redacted_text
-redacted
-redaction_count
-findings
-matches
-redactions
-to_dict()
+```json
+{
+  "data": {},
+  "meta": {
+    "contract": "selfdev.read_api.payload.v1",
+    "mode": "read_only",
+    "resource": "resource-name",
+    "status": "ok",
+    "warnings": []
+  }
+}
 ```
 
-The `findings` and `matches` fields preserve typed `RedactionFinding` objects for
-legacy integrations. The `redactions` and serialized dictionary payload expose
-sanitized dictionary representations without raw secret values.
+The envelope is read-only metadata. It must not introduce write, patch, shell, commit, push, merge, deploy, or release behavior.
 
-### Static UI Contract
+## RedactionResult Contract
 
-The static UI is an observation surface. It may load read-only API data and
-render target, artifact, boundary, and preview information. It must not expose
-controls that imply mutation, execution, patching, VCS writing, deployment, or
-release operations.
+The deterministic redaction service returns `RedactionResult`. The result exposes:
+
+- `original_text`
+- `redacted_text`
+- `text`
+- `redacted`
+- `redaction_count`
+- `findings`
+- `matches`
+- `redactions`
+- `to_dict()`
+
+`RedactionFinding` remains typed for runtime consumers, while sanitized dictionary views remain available for JSON output and compatibility tests.
 <!-- SELFDEV:MILESTONE_04_END -->
