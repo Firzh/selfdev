@@ -87,9 +87,9 @@ def test_polished_ui_safety_boundary_terms_remain_visible():
 
     for boundary in [
         "No mutation",
-        "No shell execution",
+        "No command execution",
         "No patch apply",
-        "No commit",
+        "No VCS write",
         "No push",
         "No merge",
         "No deploy",

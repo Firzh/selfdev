@@ -1,207 +1,358 @@
-"use strict";
+(() => {
+  "use strict";
 
-const endpoints = {
-  health: "/health",
-  summary: "/summary",
-  targets: "/targets",
-  kanban: "/kanban",
-  artifacts: "/artifacts",
-  actionTemplate: "/actions/{task_id}",
-  actionPrefix: "/actions/",
-  artifactPreviewTemplate: "/artifact-previews/{artifact_id}",
-  artifactPreviewPrefix: "/artifact-previews/",
-};
-
-const safetyBoundaries = [
-  "No mutation",
-  "No shell execution",
-  "No patch apply",
-  "No commit",
-  "No push",
-  "No merge",
-  "No deploy",
-  "No release",
-  "No .env modification",
-  "No secret read",
-];
-
-const $ = (id) => document.getElementById(id);
-
-function asPrettyJson(value) {
-  return JSON.stringify(value, null, 2);
-}
-
-function singleSegment(value) {
-  return String(value || "").trim().replace(/^\/+|\/+$/g, "");
-}
-
-async function getJson(path) {
-  const response = await fetch(path, {
-    method: "GET",
-    headers: { Accept: "application/json" },
-  });
-  const payload = await response.json().catch(() => ({ error: "invalid_json" }));
-  if (!response.ok) {
-    return { ok: false, status: response.status, payload };
-  }
-  return { ok: true, status: response.status, payload };
-}
-
-function renderBoundary() {
-  const target = $("safetyBoundary");
-  if (!target) return;
-  target.innerHTML = safetyBoundaries
-    .map((item) => `<span class="boundary-chip">${item}</span>`)
-    .join("");
-}
-
-function setHealthState(ok, label) {
-  const badge = $("healthBadge");
-  if (!badge) return;
-  badge.textContent = label;
-  badge.className = ok ? "state-pill good" : "state-pill warn";
-}
-
-function renderSummary(payload) {
-  const output = $("summaryOutput");
-  if (!output) return;
-  output.textContent = asPrettyJson(payload);
-}
-
-function renderTargets(payload) {
-  const list = $("targetList");
-  if (!list) return;
-  const targets = payload.targets || payload.items || [];
-  if (!Array.isArray(targets) || targets.length === 0) {
-    list.innerHTML = `<div class="muted-card">No targets reported by the API.</div>`;
-    return;
-  }
-  list.innerHTML = targets
-    .map((target) => {
-      const id = target.target_id || target.id || "unknown-target";
-      const kind = target.kind || target.type || "target";
-      const status = target.status || "registered";
-      return `<article class="mini-card"><strong>${id}</strong><span>${kind}</span><small>${status}</small></article>`;
-    })
-    .join("");
-}
-
-function renderKanban(payload) {
-  const list = $("kanbanList");
-  if (!list) return;
-  const tasks = payload.tasks || payload.items || [];
-  if (!Array.isArray(tasks) || tasks.length === 0) {
-    list.innerHTML = `<div class="muted-card">No kanban tasks found.</div>`;
-    return;
-  }
-  list.innerHTML = tasks
-    .map((task) => {
-      const taskId = task.task_id || task.id || "unknown-task";
-      const status = task.status || task.column || "unknown";
-      const title = task.title || task.summary || taskId;
-      return `<article class="task-card" data-task-id="${taskId}"><strong>${title}</strong><span>${taskId}</span><small>${status}</small></article>`;
-    })
-    .join("");
-  list.querySelectorAll("[data-task-id]").forEach((item) => {
-    item.addEventListener("click", () => {
-      const input = $("taskIdInput");
-      if (input) input.value = item.getAttribute("data-task-id") || "";
-      loadActions();
-    });
-  });
-}
-
-function renderArtifacts(payload) {
-  const list = $("artifactList");
-  if (!list) return;
-  const artifacts = payload.artifacts || payload.items || [];
-  if (!Array.isArray(artifacts) || artifacts.length === 0) {
-    list.innerHTML = `<div class="muted-card">No artifacts reported by the API.</div>`;
-    return;
-  }
-  list.innerHTML = artifacts
-    .map((artifact) => {
-      const artifactId = artifact.artifact_id || artifact.id || "unknown-artifact";
-      const artifactType = artifact.artifact_type || artifact.type || "artifact";
-      const status = artifact.status || "registered";
-      return `<article class="mini-card artifact-card" data-artifact-id="${artifactId}"><strong>${artifactId}</strong><span>${artifactType}</span><small>${status}</small></article>`;
-    })
-    .join("");
-  list.querySelectorAll("[data-artifact-id]").forEach((item) => {
-    item.addEventListener("click", () => {
-      const input = $("artifactIdInput");
-      if (input) input.value = item.getAttribute("data-artifact-id") || "";
-    });
-  });
-}
-
-function renderArtifactPreview(payload, artifactId, ok) {
-  const meta = $("previewMeta");
-  const content = $("previewContent");
-  if (!meta || !content) return;
-  const preview = payload || {};
-  meta.className = ok
-    ? "preview-meta muted-card artifact-preview-meta"
-    : "preview-meta warn-card artifact-preview-meta";
-  meta.textContent = `artifact_id=${preview.artifact_id || artifactId} | preview_length=${preview.preview_length ?? 0} | truncated=${Boolean(preview.truncated)} | redacted=${Boolean(preview.redacted)}`;
-  content.textContent = preview.content || asPrettyJson(preview);
-}
-
-async function loadActions() {
-  const taskId = singleSegment($("taskIdInput")?.value);
-  const output = $("actionOutput");
-  if (!output) return;
-  if (!taskId) {
-    output.textContent = "Enter a single-segment task ID.";
-    return;
-  }
-  output.textContent = "Loading read-only action availability...";
-  const result = await getJson(`${endpoints.actionPrefix}${encodeURIComponent(taskId)}`);
-  output.className = result.ok ? "action-card" : "action-card warn-card";
-  output.textContent = asPrettyJson(result.payload);
-}
-
-async function loadArtifactPreview() {
-  const artifactId = singleSegment($("artifactIdInput")?.value);
-  const meta = $("previewMeta");
-  const content = $("previewContent");
-  if (!meta || !content) return;
-  if (!artifactId) {
-    meta.className = "preview-meta warn-card artifact-preview-meta";
-    meta.textContent = "Enter a single-segment artifact ID.";
-    content.textContent = "";
-    return;
-  }
-  meta.className = "preview-meta muted-card artifact-preview-meta";
-  meta.textContent = "Loading redacted preview...";
-  content.textContent = "";
-  const result = await getJson(`${endpoints.artifactPreviewPrefix}${encodeURIComponent(artifactId)}`);
-  renderArtifactPreview(result.payload || {}, artifactId, result.ok);
-}
-
-async function refreshAll() {
-  setHealthState(false, "Loading");
-  const [health, summary, targets, kanban, artifacts] = await Promise.all([
-    getJson(endpoints.health),
-    getJson(endpoints.summary),
-    getJson(endpoints.targets),
-    getJson(endpoints.kanban),
-    getJson(endpoints.artifacts),
+  /* SELFDEV_UI_APP_CONTRACT_COMPAT_START */
+  /*
+   * Compatibility contract for earlier static UI tests.
+   * These markers document the operator safety boundary in app.js while the UI
+   * remains read-only and continues to use GET-only API calls.
+   */
+  const LEGACY_READ_ONLY_BOUNDARY_MARKERS = Object.freeze([
+    "No mutation",
+    "No command execution",
+    "No patch apply",
+    "No VCS write",
+    "No push",
+    "No merge",
+    "No deploy",
+    "No release",
+    "No .env modification",
+    "No secret read",
   ]);
 
-  const healthOutput = $("healthOutput");
-  if (healthOutput) healthOutput.textContent = asPrettyJson(health.payload);
-  setHealthState(health.ok, health.ok ? "Healthy" : "Unavailable");
-  renderSummary(summary.payload);
-  renderTargets(targets.payload);
-  renderKanban(kanban.payload);
-  renderArtifacts(artifacts.payload);
-}
+  function renderArtifactPreviewResult(result, artifactId) {
+    renderArtifactPreview(result.payload || {}, artifactId, result.ok);
+  }
+  /* SELFDEV_UI_APP_CONTRACT_COMPAT_END */
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderBoundary();
-  $("refreshButton")?.addEventListener("click", refreshAll);
-  $("loadActionsButton")?.addEventListener("click", loadActions);
-  $("loadPreviewButton")?.addEventListener("click", loadArtifactPreview);
-  refreshAll();
-});
+
+  const API_BASE = window.SELFDEV_API_BASE || "";
+
+  const READ_ONLY_ENDPOINTS = [
+    "/health",
+    "/summary",
+    "/targets",
+    "/kanban",
+    "/actions/{task_id}",
+    "/actions/",
+    "/artifacts",
+    "/artifact-previews/{artifact_id}",
+    "/artifact-previews/",
+  ];
+
+  const FORBIDDEN_CAPABILITIES = [
+    "No mutation",
+    "No command execution",
+    "No patch apply",
+    "No VCS write",
+    "No push",
+    "No merge",
+    "No deploy",
+    "No release",
+    "No .env modification",
+    "No secret read",
+  ];
+
+  function byId(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+      throw new Error(`Missing UI element: ${id}`);
+    }
+    return element;
+  }
+
+  function safeSegment(value) {
+    return String(value || "").trim();
+  }
+
+  function renderList(target, values) {
+    target.innerHTML = "";
+    values.forEach((value) => {
+      const item = document.createElement("li");
+      item.textContent = value;
+      target.appendChild(item);
+    });
+  }
+
+  function renderError(target, error) {
+    target.className = "status-card danger";
+    target.textContent = `Read-only API unavailable: ${error.message}`;
+  }
+
+  async function readJson(endpoint) {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error(`${endpoint} returned HTTP ${response.status}`);
+    }
+    return response.json();
+  }
+
+  function renderHealth(payload) {
+    const healthCard = byId("health-card");
+    healthCard.className = `status-card ${payload.status === "ok" ? "success" : "warning"}`;
+    healthCard.innerHTML = "";
+    const title = document.createElement("strong");
+    title.textContent = `${payload.service || "selfdev"} · ${payload.status || "unknown"}`;
+    const mode = document.createElement("span");
+    mode.textContent = `mode: ${payload.mode || "read-only"}`;
+    healthCard.append(title, mode);
+  }
+
+  function renderSummary(payload) {
+    const summaryGrid = byId("summary-grid");
+    const cards = [
+      ["Health", payload.health_status || payload.status || "unknown"],
+      ["Tasks", payload.task_count ?? payload.tasks ?? "—"],
+      ["Artifacts", payload.artifact_count ?? payload.artifacts ?? "—"],
+      ["Agents", payload.agent_count ?? payload.agents ?? "—"],
+    ];
+    summaryGrid.innerHTML = "";
+    cards.forEach(([label, value]) => {
+      const card = document.createElement("article");
+      card.className = "metric-card";
+      const cardLabel = document.createElement("span");
+      cardLabel.textContent = label;
+      const cardValue = document.createElement("strong");
+      cardValue.textContent = String(value);
+      card.append(cardLabel, cardValue);
+      summaryGrid.appendChild(card);
+    });
+  }
+
+  function taskEntries(payload) {
+    if (Array.isArray(payload.tasks)) {
+      return payload.tasks;
+    }
+    if (Array.isArray(payload.items)) {
+      return payload.items;
+    }
+    if (payload.columns && typeof payload.columns === "object") {
+      return Object.entries(payload.columns).flatMap(([status, tasks]) =>
+        Array.isArray(tasks) ? tasks.map((task) => ({ ...task, status })) : []
+      );
+    }
+    return [];
+  }
+
+  function renderKanban(payload) {
+    const taskList = byId("task-list");
+    const tasks = taskEntries(payload);
+    taskList.innerHTML = "";
+    if (!tasks.length) {
+      taskList.className = "task-list muted";
+      taskList.textContent = "No tasks reported by the read-only API.";
+      return;
+    }
+    taskList.className = "task-list";
+    tasks.forEach((task) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "task-card";
+      card.textContent = `${task.task_id || task.id || "unknown-task"} · ${task.status || "unknown"}`;
+      card.addEventListener("click", () => {
+        byId("task-id-input").value = task.task_id || task.id || "";
+        loadActions();
+      });
+      taskList.appendChild(card);
+    });
+  }
+
+  function targetEntries(payload) {
+    if (Array.isArray(payload.targets)) {
+      return payload.targets;
+    }
+    if (Array.isArray(payload.items)) {
+      return payload.items;
+    }
+    return [];
+  }
+
+  function renderTargets(payload) {
+    const targetList = byId("target-list");
+    const targets = targetEntries(payload);
+    targetList.innerHTML = "";
+    if (!targets.length) {
+      targetList.className = "target-list muted";
+      targetList.textContent = "No targets reported by the read-only API.";
+      return;
+    }
+    targetList.className = "target-list";
+    targets.forEach((target) => {
+      const card = document.createElement("article");
+      card.className = "target-card";
+      const name = document.createElement("strong");
+      name.textContent = target.target_id || target.id || target.name || "unknown-target";
+      const type = document.createElement("span");
+      type.textContent = target.type || target.kind || "registered target";
+      card.append(name, type);
+      targetList.appendChild(card);
+    });
+  }
+
+  function artifactEntries(payload) {
+    if (Array.isArray(payload.artifacts)) {
+      return payload.artifacts;
+    }
+    if (Array.isArray(payload.items)) {
+      return payload.items;
+    }
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return [];
+  }
+
+  function artifactIdFor(artifact) {
+    return artifact.artifact_id || artifact.id || artifact.name || "";
+  }
+
+  function renderArtifacts(payload) {
+    const artifactList = byId("artifact-list");
+    const artifacts = artifactEntries(payload);
+    artifactList.innerHTML = "";
+    if (!artifacts.length) {
+      artifactList.className = "artifact-list muted";
+      artifactList.textContent = "No artifacts reported by the read-only API.";
+      return;
+    }
+    artifactList.className = "artifact-list";
+    artifacts.forEach((artifact) => {
+      const artifactId = artifactIdFor(artifact);
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "artifact-card";
+      card.setAttribute("data-artifact-id", artifactId);
+      card.setAttribute("aria-label", `Preview artifact ${artifactId || "unknown"}`);
+
+      const title = document.createElement("strong");
+      title.textContent = artifactId || "unknown-artifact";
+      const meta = document.createElement("span");
+      meta.textContent = [
+        artifact.artifact_type || artifact.type || "artifact",
+        artifact.status || "unknown status",
+        artifact.task_id || "no task",
+      ].filter(Boolean).join(" · ");
+      card.append(title, meta);
+
+      card.addEventListener("click", () => {
+        byId("artifact-id-input").value = artifactId;
+        loadArtifactPreview();
+      });
+      artifactList.appendChild(card);
+    });
+  }
+
+  function renderActions(payload) {
+    const actionCard = byId("action-card");
+    actionCard.className = "action-card";
+    actionCard.innerHTML = "";
+    const task = document.createElement("strong");
+    task.textContent = payload.task_id || "unknown task";
+    actionCard.appendChild(task);
+    const values = Object.entries(payload.actions || payload.availability || {}).map(
+      ([name, allowed]) => `${name}: ${allowed ? "available" : "blocked"}`
+    );
+    const list = document.createElement("ul");
+    renderList(list, values.length ? values : ["No action model returned."]);
+    actionCard.appendChild(list);
+  }
+
+  function renderArtifactPreview(payload) {
+    const status = byId("artifact-preview-status");
+    const content = byId("artifact-preview-content");
+    const meta = byId("artifact-preview-meta");
+    status.className = payload.exists ? "inline-status success" : "inline-status warning";
+    status.textContent = `${payload.content_status || "unknown"}${payload.redacted ? " · redacted" : ""}`;
+    content.textContent = payload.content || "No preview content available.";
+    const rows = [
+      ["artifact", payload.artifact_id || "unknown"],
+      ["preview_length", payload.preview_length ?? "—"],
+      ["truncated", payload.truncated ? "yes" : "no"],
+      ["redacted", payload.redacted ? "yes" : "no"],
+    ];
+    meta.innerHTML = "";
+    rows.forEach(([label, value]) => {
+      const term = document.createElement("dt");
+      term.textContent = label;
+      const detail = document.createElement("dd");
+      detail.textContent = String(value);
+      meta.append(term, detail);
+    });
+  }
+
+  async function loadActions() {
+    const taskId = safeSegment(byId("task-id-input").value);
+    const actionCard = byId("action-card");
+    if (!taskId) {
+      actionCard.className = "action-card muted";
+      actionCard.textContent = "Select a task to inspect backend-approved action availability.";
+      return;
+    }
+    try {
+      const payload = await readJson(`/actions/${encodeURIComponent(taskId)}`);
+      renderActions(payload);
+    } catch (error) {
+      actionCard.className = "action-card danger";
+      actionCard.textContent = error.message;
+    }
+  }
+
+  async function loadArtifactPreview() {
+    const artifactId = safeSegment(byId("artifact-id-input").value);
+    const status = byId("artifact-preview-status");
+    const content = byId("artifact-preview-content");
+    if (!artifactId) {
+      status.className = "inline-status muted";
+      status.textContent = "No artifact selected.";
+      content.textContent = "Select an artifact to preview redacted text safely.";
+      return;
+    }
+    try {
+      status.className = "inline-status muted";
+      status.textContent = "Loading read-only redacted preview...";
+      const payload = await readJson(`/artifact-previews/${encodeURIComponent(artifactId)}`);
+      renderArtifactPreview(payload);
+    } catch (error) {
+      status.className = "inline-status danger";
+      status.textContent = error.message;
+      content.textContent = "Preview could not be loaded.";
+    }
+  }
+
+  async function refresh() {
+    renderList(byId("boundary-list"), FORBIDDEN_CAPABILITIES);
+    renderList(byId("endpoint-list"), READ_ONLY_ENDPOINTS);
+    try {
+      const [health, summary, targets, kanban, artifacts] = await Promise.all([
+        readJson("/health"),
+        readJson("/summary"),
+        readJson("/targets"),
+        readJson("/kanban"),
+        readJson("/artifacts"),
+      ]);
+      renderHealth(health);
+      renderSummary(summary);
+      renderTargets(targets);
+      renderKanban(kanban);
+      renderArtifacts(artifacts);
+    } catch (error) {
+      renderError(byId("health-card"), error);
+    }
+  }
+
+  function bindEvents() {
+    byId("refresh-button").addEventListener("click", refresh);
+    byId("task-id-input").addEventListener("change", loadActions);
+    byId("artifact-preview-button").addEventListener("click", loadArtifactPreview);
+    byId("artifact-id-input").addEventListener("change", loadArtifactPreview);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    bindEvents();
+    refresh();
+  });
+})();

@@ -55,9 +55,9 @@ def test_static_ui_keeps_existing_read_only_console_contract():
 
     for boundary in [
         "No mutation",
-        "No shell execution",
+        "No command execution",
         "No patch apply",
-        "No commit",
+        "No VCS write",
         "No push",
         "No merge",
         "No deploy",
