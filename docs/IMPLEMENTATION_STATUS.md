@@ -130,3 +130,63 @@ Goal:
 ```text
 Improve the static console layout, readability, and read-only navigation without introducing framework dependencies, mutation actions, shell execution, patch application, commit automation, or write API behavior.
 ```
+
+<!-- SELFDEV:MILESTONE_04_START -->
+## Documentation Milestone 04 Status
+
+### Completed Since Documentation Milestone 03
+
+```text
+Static UI polish and read-only operator usability
+UI artifact list to preview integration
+UI target detail panel
+Read-only API payload consistency pass
+Redaction policy coverage expansion
+```
+
+### Current Safety Position
+
+SelfDev is still deterministic. The static UI and HTTP API are read-only. The
+system may observe local project state through deterministic readers, but it does
+not execute LLM calls, execute commands, apply patches, write VCS history, push,
+merge, deploy, or release.
+
+### Current Runtime Position
+
+```text
+manifest
+↓
+validate
+↓
+route
+↓
+dispatch
+↓
+collect artifact
+↓
+senior review
+↓
+safety
+↓
+verification
+↓
+runner request validation
+↓
+commit readiness evaluation
+↓
+read-only API observation
+↓
+static UI observation
+```
+
+### Stable Contracts
+
+```text
+selfdev.read_api.payload.v1 response envelopes
+bounded redacted artifact previews
+structured RedactionResult return values
+legacy-compatible redaction fields
+read-only static UI controls
+path-safe target and artifact IDs
+```
+<!-- SELFDEV:MILESTONE_04_END -->

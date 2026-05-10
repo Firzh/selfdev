@@ -338,3 +338,40 @@ The UI may call read-only endpoints only. It must not expose controls for shell 
 ## 16. Current Limitation
 
 The system is not yet an autonomous developer. It is currently a deterministic local workflow skeleton with read-only API and static UI support.
+
+<!-- SELFDEV:MILESTONE_04_START -->
+## Documentation Milestone 04 Specification Notes
+
+### Read API Payload Contract
+
+Read API responses use the `selfdev.read_api.payload.v1` envelope. A normalized
+payload contains `data` and `meta`. The `meta` block identifies the contract,
+resource, mode, status, existence marker, error marker, and warnings.
+
+### Redaction Contract
+
+Redaction is deterministic and regex-based. `redact_text(text)` returns a
+`RedactionResult` object. The object exposes:
+
+```text
+text
+redacted_text
+redacted
+redaction_count
+findings
+matches
+redactions
+to_dict()
+```
+
+The `findings` and `matches` fields preserve typed `RedactionFinding` objects for
+legacy integrations. The `redactions` and serialized dictionary payload expose
+sanitized dictionary representations without raw secret values.
+
+### Static UI Contract
+
+The static UI is an observation surface. It may load read-only API data and
+render target, artifact, boundary, and preview information. It must not expose
+controls that imply mutation, execution, patching, VCS writing, deployment, or
+release operations.
+<!-- SELFDEV:MILESTONE_04_END -->

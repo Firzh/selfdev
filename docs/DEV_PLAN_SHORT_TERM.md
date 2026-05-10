@@ -230,3 +230,38 @@ real scanner execution
 write API actions
 UI mutation controls
 ```
+
+<!-- SELFDEV:MILESTONE_04_START -->
+## Short-term Plan After Documentation Milestone 04
+
+### Completed Work Now Captured
+
+```text
+Static UI polish and read-only operator usability
+UI artifact list to preview integration
+UI target detail panel
+Read-only API payload consistency pass
+Redaction policy coverage expansion
+```
+
+### Next Work Candidates
+
+```text
+Read API envelope parity for every endpoint and CLI command
+Static UI empty, loading, and error state polish
+Operator troubleshooting and smoke-check documentation
+Artifact preview metadata and redaction finding presentation polish
+Target and artifact filtering for read-only operator navigation
+```
+
+### Guardrails For Next Work
+
+```text
+Keep HTTP API read-only
+Reject POST, PUT, and DELETE
+Do not expose mutation controls in static UI
+Keep artifact previews bounded and redacted
+Keep RedactionResult backward compatible
+Keep all additions deterministic and contract-tested
+```
+<!-- SELFDEV:MILESTONE_04_END -->

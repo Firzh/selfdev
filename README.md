@@ -184,3 +184,48 @@ Required docs to update:
 - `docs/DEV_PLAN_SHORT_TERM.md`
 - `docs/SPECIFICATION.md`
 - `docs/TEST_PLAN.md`
+
+<!-- SELFDEV:MILESTONE_04_START -->
+## Documentation Milestone 04 Snapshot
+
+SelfDev remains in the deterministic contract-first implementation phase. The
+current operator-facing surface is read-only and now includes the stabilized
+static operator console, target detail panel, artifact browser to preview flow,
+read API payload envelope contract, and expanded deterministic redaction policy
+coverage.
+
+### Current Read-only Surface
+
+```text
+GET /health
+GET /summary
+GET /agents
+GET /tools
+GET /kanban
+GET /artifacts
+GET /artifacts/{artifact_id}
+GET /artifact-previews/{artifact_id}
+GET /state/{task_id}
+GET /actions/{task_id}
+GET /targets
+GET /targets/{target_id}
+GET /ui
+GET /ui/index.html
+GET /ui/app.js
+GET /ui/styles.css
+```
+
+### Current Contract Guarantees
+
+```text
+static UI assets are served from /ui paths
+static UI exposes read-only operator observation only
+artifact previews are bounded and redacted
+target detail and artifact detail IDs are single path segments
+read API responses use selfdev.read_api.payload.v1 envelopes
+redaction returns structured RedactionResult objects with legacy compatibility
+no LLM execution is active
+no agent command execution is active
+no patch, VCS write, push, merge, deploy, or release automation is active
+```
+<!-- SELFDEV:MILESTONE_04_END -->
