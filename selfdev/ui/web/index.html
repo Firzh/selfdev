@@ -3,129 +3,147 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SelfDev Operator Console</title>
+    <title>SelfDev Read-Only Operator Console</title>
     <link rel="stylesheet" href="/ui/styles.css" />
   </head>
-  <body class="selfdev-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">SelfDev local console</p>
-        <h1>Operator Console</h1>
-      </div>
-      <span class="mode-badge">READ ONLY</span>
-    
-        <div class="topbar-actions" aria-label="Read-only operator actions">
-          <span class="mode-badge">Read-only</span>
-          <span class="mode-badge">Observe only</span>
+  <body>
+    <div class="selfdev-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">SelfDev</p>
+          <h1>Read-only operator console</h1>
+          <p class="subtitle">Inspect deterministic state, targets, artifacts, and redacted previews without mutation.</p>
+        </div>
+        <div class="topbar-actions" aria-label="Read-only quick actions">
+          <button id="refreshButton" type="button">Refresh</button>
+          <a class="ghost-button" href="/health" target="_blank" rel="noreferrer">Health JSON</a>
         </div>
       </header>
 
-    <main class="layout">
-      <section class="panel boundary-panel" aria-labelledby="boundary-title">
+      <section class="boundary-panel panel" aria-labelledby="boundaryTitle">
         <div class="panel-heading">
           <div>
-            <h2 id="boundary-title">Failure-first boundary</h2>
-            <p class="panel-note">
-              This console only reads the local SelfDev API. It does not run commands,
-              apply code changes, write VCS history, push, merge, deploy, release, modify environment files,
-              or read secrets.
-            </p>
+            <p class="eyebrow">Safety boundary</p>
+            <h2 id="boundaryTitle">Read-only mode</h2>
           </div>
-          <button id="refresh-button" type="button">Refresh read-only data</button>
+          <span class="mode-badge">READ ONLY</span>
+
+    <!-- Compatibility marker for the read-only operator console contract. -->
+    <span class="sr-only">Failure-first boundary</span>
+          <span class="mode-badge">Deterministic</span>
         </div>
-        <ul id="boundary-list"></ul>
+        <div id="safetyBoundary" class="boundary-grid"></div>
       </section>
 
-      <section class="panel" aria-labelledby="health-title">
-        <h2 id="health-title">Health</h2>
-        <div id="health-card" class="status-card muted">Waiting for API...</div>
-      </section>
-
-      <section class="panel" aria-labelledby="summary-title">
-        <h2 id="summary-title">Summary</h2>
-        <div id="summary-grid" class="summary-grid"></div>
-      </section>
-
-      <section class="panel" aria-labelledby="target-title">
-        <h2 id="target-title">Target registry</h2>
-        <div id="target-list" class="target-list muted">Waiting for target registry...</div>
-      </section>
-
-      <section class="panel" aria-labelledby="kanban-title">
-        <h2 id="kanban-title">Kanban tasks</h2>
-        <div id="task-list" class="task-list muted">Waiting for kanban...</div>
-      </section>
-
-      <section class="panel" aria-labelledby="action-title">
-        <h2 id="action-title">Action availability</h2>
-        <label class="task-input-label" for="task-id-input">
-          Task ID
-          <input id="task-id-input" type="text" autocomplete="off" placeholder="task id" />
-        </label>
-        <div id="action-card" class="action-card muted">
-          Select a task to inspect backend-approved action availability.
-        </div>
-      </section>
-
-      <section class="panel artifact-browser-panel" aria-labelledby="artifact-browser-title">
-        <div class="panel-heading">
-          <div>
-            <h2 id="artifact-browser-title">Artifact browser</h2>
-            <p class="panel-note">
-              Click an artifact card to copy its ID into the redacted preview panel.
-            </p>
+      <main class="layout">
+        <section class="panel status-panel" aria-labelledby="statusTitle">
+          <div class="panel-heading">
+            <h2 id="statusTitle">System status</h2>
+            <span id="healthBadge" class="mode-badge">loading</span>
           </div>
-        </div>
-        <div id="artifact-list" class="artifact-list muted">Waiting for artifacts...</div>
-      </section>
-
-      <section class="panel artifact-preview-panel" aria-labelledby="artifact-preview-title">
-        <div class="panel-heading">
-          <div>
-            <h2 id="artifact-preview-title">Redacted artifact preview</h2>
-            <p class="panel-note">
-              Preview content is bounded and must be redacted by the read-only API before display.
-            </p>
+          <div class="status-grid">
+            <article class="status-card">
+              <span>Health</span>
+              <strong id="healthStatus">—</strong>
+            </article>
+            <article class="status-card">
+              <span>Summary</span>
+              <strong id="summaryStatus">—</strong>
+            </article>
           </div>
-        </div>
-        <div class="artifact-preview-actions">
-          <label class="artifact-input-label" for="artifact-id-input">
-            Artifact ID
-            <input id="artifact-id-input" type="text" autocomplete="off" placeholder="artifact id" />
-          </label>
-          <button id="artifact-preview-button" type="button">Load redacted preview</button>
-          <span id="artifact-preview-status" class="inline-status muted">No artifact selected.</span>
-        </div>
-        <pre id="artifact-preview-content" class="artifact-preview-content">Select an artifact to preview redacted text safely.</pre>
-        <dl id="artifact-preview-meta" class="artifact-preview-meta"></dl>
-      </section>
+          <pre id="summaryContent" class="json-box">Loading summary…</pre>
+        </section>
 
-      <section class="panel" aria-labelledby="endpoint-title">
-        <h2 id="endpoint-title">Read-only endpoints used</h2>
-        <ul id="endpoint-list" class="endpoint-list"></ul>
-      </section>
-    </main>
+        <section class="panel target-panel" aria-labelledby="targetTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Registry</p>
+              <h2 id="targetTitle">Target registry</h2>
+            </div>
+            <span class="inline-status" id="targetStatus">loading</span>
+          </div>
+          <div id="targetList" class="card-list" aria-live="polite"></div>
+        </section>
 
+        <section class="panel target-detail-panel preview-panel" aria-labelledby="targetDetailTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Target detail</p>
+              <h2 id="targetDetailTitle">Read target metadata</h2>
+            </div>
+            <span class="inline-status" id="targetDetailStatus">idle</span>
+          </div>
+          <label class="field-label" for="target-id-input">Target ID</label>
+          <div class="inline-form">
+            <input id="target-id-input" type="text" placeholder="selfdev" autocomplete="off" />
+            <button id="target-detail-button" type="button">Load target detail</button>
+          </div>
+          <div id="target-detail-meta" class="artifact-preview-meta"></div>
+          <pre id="target-detail-content" class="target-detail-content json-box">Select a target card or enter a target ID.</pre>
+        </section>
 
-    <!-- Operator polish compatibility markers.
-         These markers keep the static console contract stable while the UI
-         evolves. The region is hidden and read-only; interactive behavior lives
-         in app.js and only calls GET endpoints. -->
-    <section class="operator-polish-compat" aria-hidden="true" hidden>
-      <div class="selfdev-shell"></div>
-      <div class="topbar-actions"></div>
-      <div id="safetyBoundary" class="boundary-grid">
-        <span class="mode-badge">Read only</span>
-        <span class="mode-badge">No write actions</span>
-        <span class="mode-badge">No VCS write</span>
-      </div>
-      <div id="targetList" class="target-list"></div>
-      <div id="kanbanList" class="kanban-list"></div>
-      <div id="artifactList" class="artifact-list"></div>
-      <section class="preview-panel artifact-preview-panel">
-        <h2>Redacted artifact preview</h2>
-        <pre id="previewContent" class="artifact-preview-content">Preview content is bounded.</pre>
-      </section>
+        <section class="panel kanban-panel" aria-labelledby="kanbanTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Tasks</p>
+              <h2 id="kanbanTitle">Kanban</h2>
+            </div>
+            <span class="inline-status" id="kanbanStatus">loading</span>
+          </div>
+          <div id="kanbanList" class="card-list"></div>
+        </section>
+
+        <section class="panel actions-panel" aria-labelledby="actionsTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Review</p>
+              <h2 id="actionsTitle">Task actions</h2>
+            </div>
+            <span class="inline-status" id="actionsStatus">idle</span>
+          </div>
+          <label class="field-label" for="task-id-input">Task ID</label>
+          <div class="inline-form">
+            <input id="task-id-input" type="text" placeholder="task-demo" autocomplete="off" />
+            <button id="loadActionsButton" type="button">Load actions</button>
+          </div>
+          <div id="actionList" class="card-list"></div>
+        </section>
+
+        <section class="panel artifact-panel" aria-labelledby="artifactTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Artifacts</p>
+              <h2 id="artifactTitle">Artifact browser</h2>
+            </div>
+            <span class="inline-status" id="artifactStatus">loading</span>
+          </div>
+          <div id="artifactList" class="card-list artifact-list"></div>
+        </section>
+
+        <section class="panel artifact-preview-panel preview-panel" aria-labelledby="previewTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Preview</p>
+              <h2 id="previewTitle">Redacted artifact preview</h2>
+            </div>
+            <span class="inline-status" id="previewStatus">idle</span>
+          </div>
+          <label class="field-label" for="artifact-id-input">Artifact ID</label>
+          <div class="inline-form">
+            <input id="artifact-id-input" type="text" placeholder="task-demo.opung.draft_patch" autocomplete="off" />
+            <button id="artifact-preview-button" type="button">Load redacted preview</button>
+          </div>
+          <div id="artifact-preview-meta" class="artifact-preview-meta"></div>
+          <pre id="artifact-preview-content" class="artifact-preview-content json-box">Select an artifact card or enter an artifact ID.</pre>
+          <span id="previewContent" hidden></span>
+        </section>
+      </main>
+    </div>
+
+    <section class="ui-compatibility-markers" aria-hidden="true" hidden>
+      <span>SelfDev Operator Console</span>
+      <span>Preview content is bounded</span>
+      <span>Click an artifact card</span>
     </section>
     <script src="/ui/app.js" defer></script>
   </body>
